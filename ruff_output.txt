@@ -1,0 +1,576 @@
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\clients\adzuna.py:1:1
+  |
+1 | / import requests
+2 | | from typing import List
+3 | | from src.config import settings
+4 | | from src.models import JobListing, SearchCriteria
+  | |_________________________________________________^
+5 |
+6 |   class AdzunaClient:
+  |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\clients\adzuna.py:2:1
+  |
+1 | import requests
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 | from src.config import settings
+4 | from src.models import JobListing, SearchCriteria
+  |
+
+E501 Line too long (103 > 88)
+ --> src\clients\adzuna.py:7:89
+  |
+6 | class AdzunaClient:
+7 |     BASE_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1" # Defaulting to US, can be configurable
+  |                                                                                         ^^^^^^^^^^^^^^^
+8 |
+9 |     def search_jobs(self, criteria: SearchCriteria) -> List[JobListing]:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\clients\adzuna.py:9:56
+   |
+ 7 |     BASE_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1" # Defaulting to US, can be configurable
+ 8 |
+ 9 |     def search_jobs(self, criteria: SearchCriteria) -> List[JobListing]:
+   |                                                        ^^^^
+10 |         params = {
+11 |             "app_id": settings.ADZUNA_APP_ID,
+   |
+help: Replace with `list`
+
+E501 Line too long (122 > 88)
+  --> src\clients\adzuna.py:34:89
+   |
+32 |                         description=item.get("description", "")[:500] + "...",
+33 |                         url=item.get("redirect_url", ""),
+34 |                         salary=f"{item.get('salary_min')} - {item.get('salary_max')}" if item.get('salary_min') else None,
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+35 |                         source="Adzuna",
+36 |                         posted_date=None # timestamp usually
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\clients\getonboard.py:1:1
+  |
+1 | / import requests
+2 | | from typing import List
+3 | | from src.models import JobListing, SearchCriteria
+  | |_________________________________________________^
+4 |
+5 |   class GetOnBoardClient:
+  |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\clients\getonboard.py:2:1
+  |
+1 | import requests
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 | from src.models import JobListing, SearchCriteria
+  |
+
+E501 Line too long (130 > 88)
+ --> src\clients\getonboard.py:7:89
+  |
+5 | class GetOnBoardClient:
+6 |     # GetOnBoard has a public API, but limited without auth mostly for detailed info. 
+7 |     # Using public search endpoint if available or just mocking structure for now as they require OAuth for heavy lifting usually.
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     # Actually they have a simple non-auth search endpoint potentially.
+9 |     BASE_URL = "https://www.getonboard.com/api/v0/search/jobs" 
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\clients\getonboard.py:11:56
+   |
+ 9 |     BASE_URL = "https://www.getonboard.com/api/v0/search/jobs" 
+10 |
+11 |     def search_jobs(self, criteria: SearchCriteria) -> List[JobListing]:
+   |                                                        ^^^^
+12 |         # Note: GetOnBoard API might require specific handling or might be scraping-based if no key.
+13 |         # Assuming we just query parameters if possible. 
+   |
+help: Replace with `list`
+
+E501 Line too long (100 > 88)
+  --> src\clients\getonboard.py:12:89
+   |
+11 |     def search_jobs(self, criteria: SearchCriteria) -> List[JobListing]:
+12 |         # Note: GetOnBoard API might require specific handling or might be scraping-based if no key.
+   |                                                                                         ^^^^^^^^^^^^
+13 |         # Assuming we just query parameters if possible. 
+14 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+   |
+
+E501 Line too long (108 > 88)
+  --> src\clients\getonboard.py:14:89
+   |
+12 |         # Note: GetOnBoard API might require specific handling or might be scraping-based if no key.
+13 |         # Assuming we just query parameters if possible. 
+14 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+15 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+16 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+   |
+
+E501 Line too long (102 > 88)
+  --> src\clients\getonboard.py:15:89
+   |
+13 |         # Assuming we just query parameters if possible. 
+14 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+15 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+   |                                                                                         ^^^^^^^^^^^^^^
+16 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+17 |         params = {
+   |
+
+E501 Line too long (90 > 88)
+  --> src\clients\getonboard.py:16:89
+   |
+14 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+15 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+16 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+   |                                                                                         ^^
+17 |         params = {
+18 |             "query": criteria.query,
+   |
+
+E501 Line too long (111 > 88)
+  --> src\clients\getonboard.py:34:89
+   |
+32 | ΓÇª                     title=attrs.get("title", ""),
+33 | ΓÇª                     company_name=attrs.get("company", {}).get("name", ""),
+34 | ΓÇª                     location=f"{attrs.get('country', '')} {('Remote' if attrs.get('remote') else '')}",
+   |                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^
+35 | ΓÇª                     description=attrs.get("description_headline", ""),
+36 | ΓÇª                     url=item.get("links", {}).get("public_url", ""),
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\clients\jsearch.py:1:1
+  |
+1 | / import requests
+2 | | from typing import List
+3 | | from src.config import settings
+4 | | from src.models import JobListing, SearchCriteria
+  | |_________________________________________________^
+5 |
+6 |   class JSearchClient:
+  |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\clients\jsearch.py:2:1
+  |
+1 | import requests
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 | from src.config import settings
+4 | from src.models import JobListing, SearchCriteria
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\clients\jsearch.py:9:56
+   |
+ 7 |     BASE_URL = "https://jsearch.p.rapidapi.com/search"
+ 8 |
+ 9 |     def search_jobs(self, criteria: SearchCriteria) -> List[JobListing]:
+   |                                                        ^^^^
+10 |         headers = {
+11 |             "X-RapidAPI-Key": settings.JSEARCH_API_KEY.get_secret_value(),
+   |
+help: Replace with `list`
+
+E501 Line too long (94 > 88)
+  --> src\clients\jsearch.py:34:89
+   |
+32 |                         title=item.get("job_title", ""),
+33 |                         company_name=item.get("employer_name", ""),
+34 |                         location=f"{item.get('job_city', '')}, {item.get('job_country', '')}",
+   |                                                                                         ^^^^^^
+35 |                         description=item.get("job_description", "")[:500] + "...", # Truncate for brevity
+36 |                         url=item.get("job_apply_link", ""),
+   |
+
+E501 Line too long (105 > 88)
+  --> src\clients\jsearch.py:35:89
+   |
+33 |                         company_name=item.get("employer_name", ""),
+34 |                         location=f"{item.get('job_city', '')}, {item.get('job_country', '')}",
+35 |                         description=item.get("job_description", "")[:500] + "...", # Truncate for brevity
+   |                                                                                         ^^^^^^^^^^^^^^^^^
+36 |                         url=item.get("job_apply_link", ""),
+37 |                         source="JSearch",
+   |
+
+E501 Line too long (96 > 88)
+  --> src\clients\jsearch.py:39:89
+   |
+37 |                         source="JSearch",
+38 |                         posted_date=None, # Detailed parsing needed
+39 |                         tags=[term for term in [item.get("job_is_remote") and "Remote"] if term]
+   |                                                                                         ^^^^^^^^
+40 |                     ))
+41 |             return jobs
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\config.py:1:1
+  |
+1 | / from pydantic_settings import BaseSettings, SettingsConfigDict
+2 | | from pydantic import SecretStr
+  | |______________________________^
+3 |
+4 |   class Settings(BaseSettings):
+  |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src\flows\job_flow.py:1:1
+   |
+ 1 | / from prefect import flow, task
+ 2 | | from typing import List
+ 3 | | from src.config import settings
+ 4 | | from src.models import JobListing, SearchCriteria
+ 5 | | from src.clients.jsearch import JSearchClient
+ 6 | | from src.clients.adzuna import AdzunaClient
+ 7 | | from src.clients.getonboard import GetOnBoardClient
+ 8 | | from src.services.filter_service import FilterService
+ 9 | | from src.services.notifier import TelegramNotifier
+   | |__________________________________________________^
+10 |
+11 |   @task
+   |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\flows\job_flow.py:2:1
+  |
+1 | from prefect import flow, task
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 | from src.config import settings
+4 | from src.models import JobListing, SearchCriteria
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:12:53
+   |
+11 | @task
+12 | def fetch_jsearch_jobs(criteria: SearchCriteria) -> List[JobListing]:
+   |                                                     ^^^^
+13 |     return JSearchClient().search_jobs(criteria)
+   |
+help: Replace with `list`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:16:52
+   |
+15 | @task
+16 | def fetch_adzuna_jobs(criteria: SearchCriteria) -> List[JobListing]:
+   |                                                    ^^^^
+17 |     return AdzunaClient().search_jobs(criteria)
+   |
+help: Replace with `list`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:20:56
+   |
+19 | @task
+20 | def fetch_getonboard_jobs(criteria: SearchCriteria) -> List[JobListing]:
+   |                                                        ^^^^
+21 |     return GetOnBoardClient().search_jobs(criteria)
+   |
+help: Replace with `list`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:24:26
+   |
+23 | @task
+24 | def filter_results(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+   |                          ^^^^
+25 |     return FilterService.filter_jobs(jobs, criteria)
+   |
+help: Replace with `list`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:24:73
+   |
+23 | @task
+24 | def filter_results(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+   |                                                                         ^^^^
+25 |     return FilterService.filter_jobs(jobs, criteria)
+   |
+help: Replace with `list`
+
+E501 Line too long (89 > 88)
+  --> src\flows\job_flow.py:24:89
+   |
+23 | @task
+24 | def filter_results(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+   |                                                                                         ^
+25 |     return FilterService.filter_jobs(jobs, criteria)
+   |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\flows\job_flow.py:28:23
+   |
+27 | @task
+28 | def notify_user(jobs: List[JobListing]):
+   |                       ^^^^
+29 |     TelegramNotifier().notify(jobs)
+   |
+help: Replace with `list`
+
+E501 Line too long (140 > 88)
+  --> src\flows\job_flow.py:40:89
+   |
+39 | ΓÇª
+40 | ΓÇª# Using .submit() for parallel if using Dask/Ray, but default runner is sequential/threads. 
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | ΓÇªrrently by default if async, but these are sync. 
+42 | ΓÇª Prefect handle it or use submit.
+   |
+
+E501 Line too long (97 > 88)
+  --> src\flows\job_flow.py:41:89
+   |
+39 |     # Run fetch tasks in parallel
+40 |     jsearch_jobs = fetch_jsearch_jobs(criteria) # Using .submit() for parallel if using Dask/Ray, but default runner is sequential/thrΓÇª
+41 |     # Actually Prefect 3/future runs tasks concurrently by default if async, but these are sync. 
+   |                                                                                         ^^^^^^^^^
+42 |     # To run parallel in sync, we might just let Prefect handle it or use submit.
+43 |     # For simplicity, sequential is fine for MVP or use standard execution.
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\models.py:1:1
+  |
+1 | / from datetime import datetime
+2 | | from typing import Optional, List
+3 | | from pydantic import BaseModel, Field
+  | |_____________________________________^
+4 |
+5 |   class JobListing(BaseModel):
+  |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\models.py:2:1
+  |
+1 | from datetime import datetime
+2 | from typing import Optional, List
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 | from pydantic import BaseModel, Field
+  |
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:9:15
+   |
+ 7 |     title: str
+ 8 |     company_name: str
+ 9 |     location: Optional[str] = None
+   |               ^^^^^^^^^^^^^
+10 |     description: Optional[str] = None
+11 |     url: str
+   |
+help: Convert to `X | None`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:10:18
+   |
+ 8 |     company_name: str
+ 9 |     location: Optional[str] = None
+10 |     description: Optional[str] = None
+   |                  ^^^^^^^^^^^^^
+11 |     url: str
+12 |     salary: Optional[str] = None
+   |
+help: Convert to `X | None`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:12:13
+   |
+10 |     description: Optional[str] = None
+11 |     url: str
+12 |     salary: Optional[str] = None
+   |             ^^^^^^^^^^^^^
+13 |     posted_date: Optional[datetime] = None
+14 |     source: str  # e.g., "JSearch", "Adzuna", "GetOnBoard"
+   |
+help: Convert to `X | None`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:13:18
+   |
+11 |     url: str
+12 |     salary: Optional[str] = None
+13 |     posted_date: Optional[datetime] = None
+   |                  ^^^^^^^^^^^^^^^^^^
+14 |     source: str  # e.g., "JSearch", "Adzuna", "GetOnBoard"
+15 |     tags: List[str] = Field(default_factory=list)
+   |
+help: Convert to `X | None`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\models.py:15:11
+   |
+13 |     posted_date: Optional[datetime] = None
+14 |     source: str  # e.g., "JSearch", "Adzuna", "GetOnBoard"
+15 |     tags: List[str] = Field(default_factory=list)
+   |           ^^^^
+16 |
+17 | class SearchCriteria(BaseModel):
+   |
+help: Replace with `list`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:20:17
+   |
+18 |     query: str
+19 |     location: str = "Remote"
+20 |     min_salary: Optional[float] = None
+   |                 ^^^^^^^^^^^^^^^
+21 |     seniority: Optional[str] = None  # e.g., "Junior", "Senior"
+22 |     experience_years: Optional[int] = None
+   |
+help: Convert to `X | None`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:21:16
+   |
+19 |     location: str = "Remote"
+20 |     min_salary: Optional[float] = None
+21 |     seniority: Optional[str] = None  # e.g., "Junior", "Senior"
+   |                ^^^^^^^^^^^^^
+22 |     experience_years: Optional[int] = None
+   |
+help: Convert to `X | None`
+
+UP045 [*] Use `X | None` for type annotations
+  --> src\models.py:22:23
+   |
+20 |     min_salary: Optional[float] = None
+21 |     seniority: Optional[str] = None  # e.g., "Junior", "Senior"
+22 |     experience_years: Optional[int] = None
+   |                       ^^^^^^^^^^^^^
+   |
+help: Convert to `X | None`
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\services\filter_service.py:1:1
+  |
+1 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+2 | from src.models import JobListing, SearchCriteria
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\services\filter_service.py:1:1
+  |
+1 | / from typing import List
+2 | | from src.models import JobListing, SearchCriteria
+  | |_________________________________________________^
+3 |
+4 |   class FilterService:
+  |
+help: Organize imports
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> src\services\filter_service.py:6:27
+  |
+4 | class FilterService:
+5 |     @staticmethod
+6 |     def filter_jobs(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+  |                           ^^^^
+7 |         filtered = []
+8 |         for job in jobs:
+  |
+help: Replace with `list`
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> src\services\filter_service.py:6:74
+  |
+4 | class FilterService:
+5 |     @staticmethod
+6 |     def filter_jobs(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+  |                                                                          ^^^^
+7 |         filtered = []
+8 |         for job in jobs:
+  |
+help: Replace with `list`
+
+E501 Line too long (90 > 88)
+ --> src\services\filter_service.py:6:89
+  |
+4 | class FilterService:
+5 |     @staticmethod
+6 |     def filter_jobs(jobs: List[JobListing], criteria: SearchCriteria) -> List[JobListing]:
+  |                                                                                         ^^
+7 |         filtered = []
+8 |         for job in jobs:
+  |
+
+E501 Line too long (94 > 88)
+  --> src\services\filter_service.py:10:89
+   |
+ 8 |         for job in jobs:
+ 9 |             # Basic filtering logic
+10 |             # 1. Deduplication by ID (if we were persisting, but here just filtering the list)
+   |                                                                                         ^^^^^^
+11 |             # 2. Keyword matching in description/title if criteria specified
+   |
+
+E501 Line too long (89 > 88)
+  --> src\services\filter_service.py:19:89
+   |
+17 |                     continue
+18 |             
+19 |             # Example: Filter by experience if specified (harder with text, need parsing)
+   |                                                                                         ^
+20 |             # For minimalist MVP, we might skip complex parsing unless regex is added.
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src\services\notifier.py:1:1
+  |
+1 | / import requests
+2 | | from src.config import settings
+3 | | from typing import List
+4 | | from src.models import JobListing
+  | |_________________________________^
+5 |
+6 |   class TelegramNotifier:
+  |
+help: Organize imports
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> src\services\notifier.py:3:1
+  |
+1 | import requests
+2 | from src.config import settings
+3 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+4 | from src.models import JobListing
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+  --> src\services\notifier.py:9:28
+   |
+ 7 |     BASE_URL = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN.get_secret_value()}/sendMessage"
+ 8 |
+ 9 |     def notify(self, jobs: List[JobListing]):
+   |                            ^^^^
+10 |         if not jobs:
+11 |             self._send_message("No new jobs found matching your criteria.")
+   |
+help: Replace with `list`
+
+Found 52 errors.
+[*] 28 fixable with the `--fix` option.

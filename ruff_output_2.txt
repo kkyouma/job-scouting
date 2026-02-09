@@ -1,0 +1,139 @@
+E501 Line too long (104 > 88)
+  --> src\clients\adzuna.py:8:89
+   |
+ 7 | class AdzunaClient:
+ 8 |     BASE_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1"  # Defaulting to US, can be configurable
+   |                                                                                         ^^^^^^^^^^^^^^^^
+ 9 |
+10 |     def search_jobs(self, criteria: SearchCriteria) -> list[JobListing]:
+   |
+
+E501 Line too long (89 > 88)
+  --> src\clients\adzuna.py:40:89
+   |
+38 | ΓÇª                     description=item.get("description", "")[:500] + "...",
+39 | ΓÇª                     url=item.get("redirect_url", ""),
+40 | ΓÇª                     salary=f"{item.get('salary_min')} - {item.get('salary_max')}"
+   |                                                                                   ^
+41 | ΓÇª                     if item.get("salary_min")
+42 | ΓÇª                     else None,
+   |
+
+E501 Line too long (130 > 88)
+  --> src\clients\getonboard.py:8:89
+   |
+ 6 | class GetOnBoardClient:
+ 7 |     # GetOnBoard has a public API, but limited without auth mostly for detailed info.
+ 8 |     # Using public search endpoint if available or just mocking structure for now as they require OAuth for heavy lifting usually.
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 9 |     # Actually they have a simple non-auth search endpoint potentially.
+10 |     BASE_URL = "https://www.getonboard.com/api/v0/search/jobs"
+   |
+
+E501 Line too long (100 > 88)
+  --> src\clients\getonboard.py:13:89
+   |
+12 |     def search_jobs(self, criteria: SearchCriteria) -> list[JobListing]:
+13 |         # Note: GetOnBoard API might require specific handling or might be scraping-based if no key.
+   |                                                                                         ^^^^^^^^^^^^
+14 |         # Assuming we just query parameters if possible.
+15 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+   |
+
+E501 Line too long (108 > 88)
+  --> src\clients\getonboard.py:15:89
+   |
+13 |         # Note: GetOnBoard API might require specific handling or might be scraping-based if no key.
+14 |         # Assuming we just query parameters if possible.
+15 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+16 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+17 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+   |
+
+E501 Line too long (102 > 88)
+  --> src\clients\getonboard.py:16:89
+   |
+14 |         # Assuming we just query parameters if possible.
+15 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+16 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+   |                                                                                         ^^^^^^^^^^^^^^
+17 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+18 |         params = {"query": criteria.query, "per_page": 10}
+   |
+
+E501 Line too long (90 > 88)
+  --> src\clients\getonboard.py:17:89
+   |
+15 |         # For simplicity in this "minimalist" version, we might skip complex auth if public endpoint exists.
+16 |         # Let's use a placeholder implementation or standard requests if detailed docs were available.
+17 |         # Given constraints, I'll implement a basic structure that returns empty if fails.
+   |                                                                                         ^^
+18 |         params = {"query": criteria.query, "per_page": 10}
+   |
+
+E501 Line too long (115 > 88)
+  --> src\clients\getonboard.py:33:89
+   |
+31 | ΓÇª                     title=attrs.get("title", ""),
+32 | ΓÇª                     company_name=attrs.get("company", {}).get("name", ""),
+33 | ΓÇª                     location=f"{attrs.get('country', '')} {('Remote' if attrs.get('remote') else '')}",
+   |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+34 | ΓÇª                     description=attrs.get("description_headline", ""),
+35 | ΓÇª                     url=item.get("links", {}).get("public_url", ""),
+   |
+
+E501 Line too long (98 > 88)
+  --> src\clients\jsearch.py:32:89
+   |
+30 | ΓÇª                     title=item.get("job_title", ""),
+31 | ΓÇª                     company_name=item.get("employer_name", ""),
+32 | ΓÇª                     location=f"{item.get('job_city', '')}, {item.get('job_country', '')}",
+   |                                                                                   ^^^^^^^^^^
+33 | ΓÇª                     description=item.get("job_description", "")[:500]
+34 | ΓÇª                     + "...",  # Truncate for brevity
+   |
+
+E501 Line too long (98 > 88)
+  --> src\flows\job_flow.py:50:89
+   |
+48 |     jsearch_jobs = fetch_jsearch_jobs(
+49 |         criteria
+50 |     )  # Using .submit() for parallel if using Dask/Ray, but default runner is sequential/threads.
+   |                                                                                         ^^^^^^^^^^
+51 |     # Actually Prefect 3/future runs tasks concurrently by default if async, but these are sync.
+52 |     # To run parallel in sync, we might just let Prefect handle it or use submit.
+   |
+
+E501 Line too long (96 > 88)
+  --> src\flows\job_flow.py:51:89
+   |
+49 |         criteria
+50 |     )  # Using .submit() for parallel if using Dask/Ray, but default runner is sequential/threads.
+51 |     # Actually Prefect 3/future runs tasks concurrently by default if async, but these are sync.
+   |                                                                                         ^^^^^^^^
+52 |     # To run parallel in sync, we might just let Prefect handle it or use submit.
+53 |     # For simplicity, sequential is fine for MVP or use standard execution.
+   |
+
+E501 Line too long (94 > 88)
+  --> src\services\filter_service.py:12:89
+   |
+10 |         for job in jobs:
+11 |             # Basic filtering logic
+12 |             # 1. Deduplication by ID (if we were persisting, but here just filtering the list)
+   |                                                                                         ^^^^^^
+13 |             # 2. Keyword matching in description/title if criteria specified
+   |
+
+E501 Line too long (89 > 88)
+  --> src\services\filter_service.py:21:89
+   |
+19 |                     continue
+20 |
+21 |             # Example: Filter by experience if specified (harder with text, need parsing)
+   |                                                                                         ^
+22 |             # For minimalist MVP, we might skip complex parsing unless regex is added.
+   |
+
+Found 13 errors.
