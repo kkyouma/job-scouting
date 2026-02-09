@@ -1,6 +1,4 @@
-def main():
-    print("Hello from job-scouting!")
-
+from src.scripts import check_jsearch
 
 if __name__ == "__main__":
-    main()
+    check_jsearch.main()

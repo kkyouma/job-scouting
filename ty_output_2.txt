@@ -1,9 +1,0 @@
-error[missing-argument]: No arguments provided for required parameters `JSEARCH_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-  --> src\config.py:21:12
-   |
-21 | settings = Settings()
-   |            ^^^^^^^^^^
-   |
-info: rule `missing-argument` is enabled by default
-
-Found 1 diagnostic

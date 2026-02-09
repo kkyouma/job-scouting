@@ -3,9 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     JSEARCH_API_KEY: SecretStr
     ADZUNA_APP_ID: str
@@ -18,4 +16,4 @@ class Settings(BaseSettings):
     DEFAULT_LOCATION: str = "Remote"
 
 
-settings = Settings()
+settings = Settings()  # ty:ignore[missing-argument]
