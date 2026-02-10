@@ -6,23 +6,22 @@ logger = get_logger(__name__)
 
 
 def main():
-    logger.info("Testing GetOnBoard API...")
+    logger.info("Testing GetOnBoard API")
     # GetOnBoard might not need keys for public search, but good to verify
 
-    criteria = SearchCriteria(query="Python", location="Remote")
+    criteria = SearchCriteria(query="Data Engineer")
 
     try:
         client = GetOnBoardClient()
         jobs = client.search_jobs(criteria)
 
-        logger.info(f"\nFound {len(jobs)} jobs.")
-        for job in jobs[:3]:
-            logger.info(f"- {job.title} at {job.company_name} ({job.location})")
-            logger.info(f"  URL: {job.url}")
-            logger.info("-" * 20)
+        logger.info(f"Found {len(jobs)} jobs.")
+        for i, job in enumerate(jobs[:20]):
+            link = f"\033]8;;{job.url}\033\\Link\033]8;;\033\\"
+            logger.info(f"{i + 1}. {job.title} at {job.company_name} ({job.location}) - {link}")
 
     except Exception as e:
-        logger.error(f"FAILED: {e}")
+        logger.error(e)
 
 
 if __name__ == "__main__":
