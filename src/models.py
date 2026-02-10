@@ -1,10 +1,12 @@
-from datetime import datetime
-
-from pydantic import BaseModel, Field
+from datetime import datetime, UTC
 
 
-class JobListing(BaseModel):
-    id: str
+from sqlalchemy import JSON, Column
+from sqlmodel import Field, SQLModel
+
+
+class JobListing(SQLModel, table=True):
+    id: str = Field(primary_key=True)
     title: str
     company_name: str
     location: str | None = None
@@ -13,10 +15,14 @@ class JobListing(BaseModel):
     salary: str | None = None
     posted_date: datetime | None = None
     source: str  # e.g., "JSearch", "Adzuna", "GetOnBoard"
-    tags: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list, sa_column=Column(JSON))
+
+    # Tracking fields
+    is_notified: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
-class SearchCriteria(BaseModel):
+class SearchCriteria(SQLModel):
     query: str
     location: str | None = None
     min_salary: float | None = None
