@@ -1,4 +1,5 @@
-from sqlmodel import SQLModel, Session, create_engine, select
+from sqlmodel import Session, SQLModel, create_engine, select
+
 from src.models import JobListing
 
 # Use a local SQLite database
@@ -34,7 +35,7 @@ def save_jobs(jobs: list[JobListing]):
 def get_unnotified_jobs() -> list[JobListing]:
     """Retrieve jobs that haven't been notified yet."""
     with Session(engine) as session:
-        statement = select(JobListing).where(JobListing.is_notified == False)
+        statement = select(JobListing).where(JobListing.is_notified == False)  # noqa: E712 (SQLModel statement)
         results = session.exec(statement)
         return list(results)
 

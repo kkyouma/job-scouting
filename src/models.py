@@ -1,5 +1,4 @@
-from datetime import datetime, UTC
-
+from datetime import UTC, datetime
 
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
@@ -9,6 +8,7 @@ class JobListing(SQLModel, table=True):
     id: str = Field(primary_key=True)
     title: str
     company_name: str
+    seniority: str | None = None
     location: str | None = None
     description: str | None = None
     url: str
@@ -26,6 +26,6 @@ class SearchCriteria(SQLModel):
     query: str
     location: str | None = None
     min_salary: float | None = None
-    seniority: str | None = None  # e.g., "Junior", "Senior"
+    seniority: str | None = None
     experience_years: int | None = None
     date_posted: datetime | str | None = None

@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 def main():
     logger.info("Testing Telegram Notification...")
-    if not settings.TELEGRAM_BOT_TOKEN.get_secret_value() or "your_" in settings.TELEGRAM_BOT_TOKEN.get_secret_value():
-        logger.error("TELEGRAM_BOT_TOKEN seems to be default or empty.")
+    if not settings.TELEGRAM_BOT_TOKEN:
+        logger.error("TELEGRAM_BOT_TOKEN seems to be empty.")
     # Create dummy jobs
     dummy_jobs = [
         JobListing(
