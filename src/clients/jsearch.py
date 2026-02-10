@@ -16,8 +16,13 @@ class JSearchClient:
             "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
         }
 
-        query_string = f"{criteria.query} in {criteria.location}"
-        querystring = {"query": query_string, "page": "1", "num_pages": "1"}
+        query_string = f"{criteria.query}"
+        querystring = {
+            "query": query_string,
+            "page": "1",
+            "num_pages": "2",
+            "country": criteria.location,
+        }
 
         try:
             response = requests.get(self.BASE_URL, headers=headers, params=querystring)

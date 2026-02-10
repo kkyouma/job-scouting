@@ -18,7 +18,8 @@ class JobListing(BaseModel):
 
 class SearchCriteria(BaseModel):
     query: str
-    location: str = "Remote"
+    location: str | None = None
     min_salary: float | None = None
     seniority: str | None = None  # e.g., "Junior", "Senior"
     experience_years: int | None = None
+    date_posted: datetime | str | None = None
