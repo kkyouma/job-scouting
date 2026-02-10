@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 def main():
     logger.info("Testing JSearch API...")
-    if not settings.JSEARCH_API_KEY.get_secret_value():
-        logger.warning("JSEARCH_API_KEY seems to be default or empty. Please check your .env file.")
+    if not settings.JSEARCH_API_KEY:
+        logger.warning("JSEARCH_API_KEY seems to be empty. Please check your .env file.")
 
     criteria = SearchCriteria(
         query="Data Engineer",

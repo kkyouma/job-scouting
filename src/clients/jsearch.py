@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 class JSearchClient:
     BASE_URL = "https://jsearch.p.rapidapi.com/search"
 
-    def search_jobs(self, criteria: SearchCriteria) -> list[JobListing]:
+    def search_jobs(self, criteria: SearchCriteria, page: int = 1, num_pages: int = 1) -> list[JobListing]:
         headers = {
             "X-RapidAPI-Key": settings.JSEARCH_API_KEY.get_secret_value(),
             "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
@@ -19,9 +19,10 @@ class JSearchClient:
         query_string = f"{criteria.query}"
         querystring = {
             "query": query_string,
-            "page": "1",
-            "num_pages": "2",
+            "page": str(page),
+            "num_pages": str(num_pages),
             "country": criteria.location,
+            "job_requirements": "no_experience,under_3_years_experience",
         }
 
         try:
@@ -38,10 +39,10 @@ class JSearchClient:
                             title=item.get("job_title", ""),
                             company_name=item.get("employer_name", ""),
                             location=f"{item.get('job_city', '')}, {item.get('job_country', '')}",
-                            description=item.get("job_description", "")[:500] + "...",  # Truncate for brevity
+                            description=item.get("job_description", ""),
                             url=item.get("job_apply_link", ""),
-                            source="JSearch",
-                            posted_date=None,  # Detailed parsing needed
+                            source=item.get("job_publisher", ""),
+                            posted_date=item.get("job_posted_at_datetime_utc", ""),  # Detailed parsing needed
                             tags=[term for term in [item.get("job_is_remote") and "Remote"] if term],
                         )
                     )
