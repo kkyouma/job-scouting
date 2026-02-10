@@ -1,11 +1,13 @@
 import requests
 
 from src.models import JobListing, SearchCriteria
+from src.util.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class GetOnBoardClient:
     # GetOnBoard has a public API, but limited without auth mostly for detailed info.
-    # Using public search endpoint if available or just mocking structure for now as they require OAuth for heavy lifting usually.
     # Actually they have a simple non-auth search endpoint potentially.
     BASE_URL = "https://www.getonboard.com/api/v0/search/jobs"
 
@@ -39,8 +41,8 @@ class GetOnBoardClient:
                         )
                 return jobs
             else:
-                print(f"GetOnBoard API status: {response.status_code}")
+                logger.warning(f"GetOnBoard API status: {response.status_code}")
                 return []
         except Exception as e:
-            print(f"Error fetching from GetOnBoard: {e}")
+            logger.error(f"Error fetching from GetOnBoard: {e}")
             return []

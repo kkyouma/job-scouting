@@ -2,6 +2,9 @@ import requests
 
 from src.config import settings
 from src.models import JobListing
+from src.util.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class TelegramNotifier:
@@ -38,4 +41,4 @@ class TelegramNotifier:
             response = requests.post(self.BASE_URL, json=payload)
             response.raise_for_status()
         except Exception as e:
-            print(f"Error sending Telegram notification: {e}")
+            logger.error(f"Error sending Telegram notification: {e}")

@@ -2,6 +2,9 @@ import requests
 
 from src.config import settings
 from src.models import JobListing, SearchCriteria
+from src.util.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class JSearchClient:
@@ -30,19 +33,14 @@ class JSearchClient:
                             title=item.get("job_title", ""),
                             company_name=item.get("employer_name", ""),
                             location=f"{item.get('job_city', '')}, {item.get('job_country', '')}",
-                            description=item.get("job_description", "")[:500]
-                            + "...",  # Truncate for brevity
+                            description=item.get("job_description", "")[:500] + "...",  # Truncate for brevity
                             url=item.get("job_apply_link", ""),
                             source="JSearch",
                             posted_date=None,  # Detailed parsing needed
-                            tags=[
-                                term
-                                for term in [item.get("job_is_remote") and "Remote"]
-                                if term
-                            ],
+                            tags=[term for term in [item.get("job_is_remote") and "Remote"] if term],
                         )
                     )
             return jobs
         except Exception as e:
-            print(f"Error fetching from JSearch: {e}")
+            logger.error(f"Error fetching from JSearch: {e}")
             return []

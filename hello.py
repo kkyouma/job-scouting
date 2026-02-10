@@ -1,4 +1,5 @@
-from src.scripts import check_jsearch
+from src.scripts import check_telegram
 
 if __name__ == "__main__":
-    check_jsearch.main()
+    # check_jsearch.main()
+    check_telegram.main()

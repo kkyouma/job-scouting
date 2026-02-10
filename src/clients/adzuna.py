@@ -2,6 +2,9 @@ import requests
 
 from src.config import settings
 from src.models import JobListing, SearchCriteria
+from src.util.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class AdzunaClient:
@@ -46,5 +49,5 @@ class AdzunaClient:
                     )
             return jobs
         except Exception as e:
-            print(f"Error fetching from Adzuna: {e}")
+            logger.error(f"Error fetching from Adzuna: {e}")
             return []

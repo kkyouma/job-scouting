@@ -1,10 +1,9 @@
-import logging
-
 from src.config import settings
 from src.models import JobListing
 from src.services.notifier import TelegramNotifier
+from src.util.logger_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def main():
@@ -35,12 +34,12 @@ def main():
 
     try:
         notifier = TelegramNotifier()
-        print(f"Sending notification for {len(dummy_jobs)} test jobs to Chat ID: {settings.TELEGRAM_CHAT_ID}...")
+        logger.info(f"Sending notification for {len(dummy_jobs)} test jobs to Chat ID: {settings.TELEGRAM_CHAT_ID}...")
         notifier.notify(dummy_jobs)
-        print("Notification sent successfully (check your Telegram).")
+        logger.info("Notification sent successfully (check your Telegram).")
 
     except Exception as e:
-        print(f"FAILED: {e}")
+        logger.error(f"FAILED: {e}")
 
 
 if __name__ == "__main__":

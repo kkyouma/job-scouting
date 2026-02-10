@@ -1,9 +1,12 @@
 from src.clients.getonboard import GetOnBoardClient
 from src.models import SearchCriteria
+from src.util.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def main():
-    print("Testing GetOnBoard API...")
+    logger.info("Testing GetOnBoard API...")
     # GetOnBoard might not need keys for public search, but good to verify
 
     criteria = SearchCriteria(query="Python", location="Remote")
@@ -12,14 +15,14 @@ def main():
         client = GetOnBoardClient()
         jobs = client.search_jobs(criteria)
 
-        print(f"\nFound {len(jobs)} jobs.")
+        logger.info(f"\nFound {len(jobs)} jobs.")
         for job in jobs[:3]:
-            print(f"- {job.title} at {job.company_name} ({job.location})")
-            print(f"  URL: {job.url}")
-            print("-" * 20)
+            logger.info(f"- {job.title} at {job.company_name} ({job.location})")
+            logger.info(f"  URL: {job.url}")
+            logger.info("-" * 20)
 
     except Exception as e:
-        print(f"FAILED: {e}")
+        logger.error(f"FAILED: {e}")
 
 
 if __name__ == "__main__":

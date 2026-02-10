@@ -12,6 +12,7 @@ class Colors:
     BOLD = "\033[1m"
 
     # Colores básicos
+    GRAY = "\033[90m"
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -33,7 +34,7 @@ class Colors:
 class ColoredFormatter(logging.Formatter):
     """Formatter que agrega colores según el nivel de log."""
 
-    LEVEL_COLORS = {
+    LEVEL_COLORS = {  # noqa: RUF012
         logging.DEBUG: Colors.CYAN,
         logging.INFO: Colors.GREEN,
         logging.WARNING: Colors.YELLOW,
@@ -42,20 +43,28 @@ class ColoredFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        # Guardar el levelname original
-        levelname_original = record.levelname
+        # Save originals
+        original_levelname = record.levelname
+        original_name = record.name
 
         # Agregar color al nivel
-        color = self.LEVEL_COLORS.get(record.levelno, Colors.RESET)
-        record.levelname = f"{color}{record.levelname}{Colors.RESET}"
+        level_color = self.LEVEL_COLORS.get(record.levelno, Colors.RESET)
+        record.levelname = f"{level_color}{record.levelname}{Colors.RESET}"
 
-        # Formatear el mensaje
-        formatted = super().format(record)
+        msg = super().format(record)
+
+        msg = msg.replace(record.name, f"{Colors.GRAY}{record.name}{Colors.RESET}")
+
+        if hasattr(record, "asctime"):
+            msg = msg.replace(record.asctime, f"{Colors.GRAY}{record.asctime}{Colors.RESET}")
+
+        record.levelname = original_levelname
+        record.name = original_name
 
         # Restaurar el levelname original
-        record.levelname = levelname_original
+        record.levelname = original_levelname
 
-        return formatted
+        return msg
 
 
 def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
@@ -81,10 +90,7 @@ def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
 
-    # Formato: [2024-02-09 10:30:45] [INFO] [script_name] Mensaje
-    formatter = ColoredFormatter(
-        fmt="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    formatter = ColoredFormatter(fmt="%(asctime)s %(name)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
 
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
@@ -114,9 +120,7 @@ def get_file_logger(name: str, log_file: str, level: int = logging.INFO) -> logg
     # Handler para consola con colores
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
-    colored_formatter = ColoredFormatter(
-        fmt="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    colored_formatter = ColoredFormatter(fmt="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s", datefmt="%H:%M:%S")
     console_handler.setFormatter(colored_formatter)
 
     # Handler para archivo sin colores
