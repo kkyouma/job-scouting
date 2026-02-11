@@ -3,6 +3,7 @@ import requests
 from src.config import settings
 from src.models import JobListing
 from src.util.logger_config import get_logger
+from src.util.normalizer import html_to_markdown_basic
 
 logger = get_logger(__name__)
 
@@ -25,19 +26,17 @@ class TelegramNotifier:
             self._send_message("No new jobs found matching your criteria.")
             return
 
-        # Group messages to avoid hitting limits or spamming too much
-        # Simple implementation: one message per job or a summary
-
         header = f"🚀 Found {len(jobs)} new jobs!\n\n"
         self._send_message(header)
 
         for job in jobs[:10]:  # Limit to 10 notifications to avoid spam
             msg = (
                 f"**{job.title}**\n"
-                f"🏢 {job.company_name}\n"
+                f"Modality: {job.modality}\n"
                 f"📍 {job.location or 'Unknown'}\n"
                 f"🔗 [Apply Here]({job.url})\n"
                 f"🏷️ {', '.join(job.tags)}\n"
+                f"{html_to_markdown_basic(job.description)}"
             )
             self._send_message(msg)
 

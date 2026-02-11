@@ -4,7 +4,7 @@ import requests
 
 from src.models import JobListing, SearchCriteria
 from src.util.logger_config import get_logger
-from src.util.normalizer import normalize_location, normalize_modality, normalize_seniority
+from src.util.normalizer import html_to_markdown_basic, normalize_location, normalize_modality, normalize_seniority
 
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ class GetOnBoardClient:
         else:
             return "No especificado"
 
-    def search_jobs(self, criteria: SearchCriteria) -> list[JobListing]:
+    def search_jobs(self, criteria: SearchCriteria, per_page: int = 10) -> list[JobListing]:
         params = {"query": criteria.query, "per_page": 10, "country_code": "CL"}
 
         try:
@@ -42,6 +42,9 @@ class GetOnBoardClient:
 
                         # attributes
                         seniority_id = attrs.get("seniority", {}).get("data", {}).get("id")
+                        description = f"{attrs.get('description', 'No especificado')}\n"
+                        f"{attrs.get('functions', 'No especificado')}\n"
+                        (f"{attrs.get('desirable', 'No especificado')}",)
                         jobs.append(
                             JobListing(
                                 id=item.get("id", ""),
@@ -51,9 +54,7 @@ class GetOnBoardClient:
                                 .get("attributes", {})
                                 .get("name", ""),
                                 location=normalize_location(attrs.get("countries", "")),
-                                description=f"Descripcion: {attrs.get('description', 'No especificado')}\n"
-                                f"Funciones: {attrs.get('functions', 'No especificado')}\n"
-                                f"Deseable: {attrs.get('desirable', 'No especificado')}",
+                                description=html_to_markdown_basic(description),
                                 url=item.get("links", {}).get("public_url", ""),
                                 source="GetOnBoard",
                                 posted_date=None,
