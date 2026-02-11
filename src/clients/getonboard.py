@@ -65,7 +65,7 @@ class GetOnBoardClient:
                         )
                 return jobs
             else:
-                logger.warning(f"GetOnBoard API status: {response.status_code}")
+                logger.warning(f"GetOnBoard API status: {response.status_code} | {response.text}")
                 return []
         except Exception as e:
             logger.exception(f"Error fetching from GetOnBoard: {e}")

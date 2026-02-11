@@ -32,12 +32,8 @@ class AdzunaClient:
                         JobListing(
                             id=str(item.get("id", "")),
                             title=item.get("title", ""),
-                            company_name=item.get("company", {}).get(
-                                "display_name", ""
-                            ),
-                            location=", ".join(
-                                item.get("location", {}).get("area", [])
-                            ),
+                            company_name=item.get("company", {}).get("display_name", ""),
+                            location=", ".join(item.get("location", {}).get("area", [])),
                             description=item.get("description", "")[:500] + "...",
                             url=item.get("redirect_url", ""),
                             salary=f"{item.get('salary_min')} - {item.get('salary_max')}"
@@ -48,6 +44,9 @@ class AdzunaClient:
                         )
                     )
             return jobs
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Adzuna API HTTP error: {e} | Response: {e.response.text}")
+            return []
         except Exception as e:
             logger.error(f"Error fetching from Adzuna: {e}")
             return []

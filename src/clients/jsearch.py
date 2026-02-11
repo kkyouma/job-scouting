@@ -29,8 +29,6 @@ class JSearchClient:
             response = requests.get(self.BASE_URL, headers=headers, params=querystring)
             response.raise_for_status()
             data = response.json()
-            with open("respuesta.json", "w", encoding="utf-8") as f:
-                json.dump(response.json(), f, ensure_ascii=False, indent=4)
 
             jobs = []
             if "data" in data:
