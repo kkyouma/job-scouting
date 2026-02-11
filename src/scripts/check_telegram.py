@@ -1,46 +1,26 @@
 from src.config import settings
 from src.models import JobListing
 from src.services.notifier import TelegramNotifier
+from src.services.storage_service import get_unnotified_jobs
 from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
 
 
-def main():
-    logger.info("Testing Telegram Notification...")
+def check_notify(jobs: list[JobListing]):
+    logger.info("Testing Telegram Notification")
     if not settings.TELEGRAM_BOT_TOKEN:
         logger.error("TELEGRAM_BOT_TOKEN seems to be empty.")
-    # Create dummy jobs
-    dummy_jobs = [
-        JobListing(
-            id="test-1",
-            title="Test Job - Python Dev",
-            company_name="Test Corp",
-            location="Remote",
-            url="https://example.com/job1",
-            source="Test",
-            tags=["Remote", "Python"],
-        ),
-        JobListing(
-            id="test-2",
-            title="Test Job - Data Scientist",
-            company_name="Data Inc",
-            location="New York",
-            url="https://example.com/job2",
-            source="Test",
-            tags=["On-site", "AI"],
-        ),
-    ]
 
     try:
         notifier = TelegramNotifier()
-        logger.info(f"Sending notification for {len(dummy_jobs)} test jobs to Chat ID: {settings.TELEGRAM_CHAT_ID}...")
-        notifier.notify(dummy_jobs)
-        logger.info("Notification sent successfully (check your Telegram).")
+        logger.info(f"Sending notification for {len(jobs)} test jobs to Chat ID: {settings.TELEGRAM_CHAT_ID}")
+        notifier.notify(jobs)
+        logger.info("Notification sent successfully.")
 
     except Exception as e:
         logger.error(f"FAILED: {e}")
 
 
 if __name__ == "__main__":
-    main()
+    check_notify(jobs=get_unnotified_jobs())

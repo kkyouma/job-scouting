@@ -1,21 +1,15 @@
 from src.clients.jsearch import JSearchClient
 from src.config import settings
-from src.models import SearchCriteria
+from src.models import JobListing, SearchCriteria
 from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
 
 
-def main():
+def check_jsearch(criteria: SearchCriteria) -> list[JobListing]:
     logger.info("Testing JSearch API...")
     if not settings.JSEARCH_API_KEY:
         logger.warning("JSEARCH_API_KEY seems to be empty. Please check your .env file.")
-
-    criteria = SearchCriteria(
-        query="Data Engineer",
-        date_posted="today",
-        location="cl",
-    )
 
     try:
         client = JSearchClient()
@@ -29,6 +23,8 @@ def main():
     except Exception as e:
         logger.error(e)
 
+    return jobs
+
 
 if __name__ == "__main__":
-    main()
+    check_jsearch(SearchCriteria(query="Data Engineer"))
