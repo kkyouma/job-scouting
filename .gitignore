@@ -12,5 +12,8 @@ wheels/
 .env
 .env.example
 
+# Testing
+hello.py
+
 # Prefect
 .prefect/
