@@ -1,4 +1,6 @@
+import re
 import unicodedata
+from html import unescape
 from typing import Any
 
 from src.util.logger_config import get_logger
@@ -98,3 +100,42 @@ def normalize_modality(raw: Any) -> str:
         logger.warning(f"Unknown modality value: {raw}")
 
     return normalized
+
+
+# def normalize_job_text(raw: str) -> str:
+#     # 1) Fix encoding / weird chars
+#     raw = raw.replace("\xa0", " ").strip()
+#
+#     # 2) Parse HTML
+#     soup = BeautifulSoup(raw, "html.parser")
+#
+#     # 3) Convert HTML → Markdown
+#     h = html2text.HTML2Text()
+#     h.ignore_links = True
+#     h.ignore_images = True
+#     md = h.handle(str(soup))
+#
+#     # 4) Cleanup Markdown noise
+#     md = re.sub(r"\n{3,}", "\n\n", md)  # collapse blank lines
+#     md = re.sub(r"[ \t]+", " ", md)  # collapse spaces
+#     md = md.strip()
+#
+#     return md
+
+
+def html_to_markdown_basic(text: str) -> str:
+    text = unescape(text)
+
+    replacements = {
+        r"<strong>(.*?)</strong>": r"**\1**",
+        r"<li>(.*?)</li>": r"- \1\n",
+        r"<br\s*/?>": "\n",
+        r"</p>": "\n\n",
+        r"<.*?>": "",  # remove remaining tags
+    }
+
+    for pattern, repl in replacements.items():
+        text = re.sub(pattern, repl, text, flags=re.S)
+
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
