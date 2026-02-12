@@ -1,6 +1,5 @@
 from prefect import flow, task
 
-from src.clients.adzuna import AdzunaClient
 from src.clients.getonboard import GetOnBoardClient
 from src.clients.jsearch import JSearchClient
 from src.config import settings
@@ -17,12 +16,7 @@ from src.services.storage_service import (
 
 @task
 def fetch_jsearch_jobs(criteria: SearchCriteria) -> list[JobListing]:
-    return JSearchClient().search_jobs(criteria)
-
-
-@task
-def fetch_adzuna_jobs(criteria: SearchCriteria) -> list[JobListing]:
-    return AdzunaClient().search_jobs(criteria)
+    return JSearchClient().search_jobs(criteria, num_pages=2)
 
 
 @task
@@ -31,8 +25,8 @@ def fetch_getonboard_jobs(criteria: SearchCriteria) -> list[JobListing]:
 
 
 @task
-def filter_results(jobs: list[JobListing], criteria: SearchCriteria) -> list[JobListing]:
-    return FilterService.filter_jobs(jobs, criteria)
+def filter_results(jobs: list[JobListing]) -> list[JobListing]:
+    return FilterService.filter_jobs(jobs)
 
 
 @task
@@ -41,14 +35,14 @@ def notify_user(jobs: list[JobListing]):
 
 
 @flow(name="Job Scouting Flow")
-def job_scouting_flow():
+def job_flow():
     # 1. Initialize Database
     init_db()
 
     criteria = SearchCriteria(
         query=settings.DEFAULT_QUERY,
         location=settings.DEFAULT_LOCATION,
-        seniority="Senior",  # Example hardcoded for now, or could come from env/params
+        date_posted="today",
     )
 
     # 2. Fetch Jobs
@@ -57,13 +51,12 @@ def job_scouting_flow():
         criteria
     )  # Using .submit() for parallel if using Dask/Ray, but default runner is sequential/threads.
 
-    adzuna_jobs = fetch_adzuna_jobs(criteria)
     getonboard_jobs = fetch_getonboard_jobs(criteria)  #  GetOnBoard might be empty
 
-    all_jobs = jsearch_jobs + adzuna_jobs + getonboard_jobs
+    all_jobs = jsearch_jobs + getonboard_jobs
 
     # 3. Filter Jobs (Business Logic)
-    filtered_jobs = filter_results(all_jobs, criteria)
+    filtered_jobs = filter_results(all_jobs)
 
     # 4. Save to DB (Deduplication happens here)
     save_jobs(filtered_jobs)
@@ -85,4 +78,4 @@ def job_scouting_flow():
 
 
 if __name__ == "__main__":
-    job_scouting_flow()
+    job_flow()
