@@ -20,12 +20,22 @@ SENIORITY_MAP = {
     "junior": "Junior",
     "ssr": "Semi-Senior",
     "semi senior": "Semi-Senior",
+    "semi-senior": "Semi-Senior",
     "mid": "Mid",
+    "mid-level": "Mid",
     "senior": "Senior",
     "sr": "Senior",
     "lead": "Lead",
     "staff": "Staff",
     "principal": "Principal",
+    # Level-based
+    "intermediate": "Mid",
+    "associate": "Junior",
+    "senior associate": "Semi-Senior",
+    "manager": "Manager",
+    "senior manager": "Senior Manager",
+    "director": "Director",
+    "senior director": "Senior Director",
     # GetOnBoard
     "1": "No experience",
     "2": "Junior",
@@ -139,3 +149,75 @@ def html_to_markdown_basic(text: str) -> str:
 
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
+
+
+def extract_seniority_from_title(title: str) -> str:
+    """Extract seniority level from job title."""
+    if not title:
+        return "No especificado"
+
+    title_lower = title.lower().strip()
+
+    # Check for multi-word seniority terms first (order matters!)
+    multi_word_terms = [
+        ("senior manager", "Senior Manager"),
+        ("senior director", "Senior Director"),
+        ("senior associate", "Semi-Senior"),
+        ("semi senior", "Semi-Senior"),
+        ("semi-senior", "Semi-Senior"),
+        ("mid-level", "Mid"),
+    ]
+
+    for term, normalized in multi_word_terms:
+        if term in title_lower:
+            return normalized
+
+    # Check for single-word terms
+    single_word_terms = [
+        ("principal", "Principal"),
+        ("director", "Director"),
+        ("manager", "Manager"),
+        ("senior", "Senior"),
+        ("lead", "Lead"),
+        ("staff", "Staff"),
+        ("intermediate", "Mid"),
+        ("associate", "Junior"),
+        ("junior", "Junior"),
+        ("mid", "Mid"),
+    ]
+
+    for term, normalized in single_word_terms:
+        # Use word boundaries to avoid matching substrings
+        pattern = r"\b" + re.escape(term) + r"\b"
+        if re.search(pattern, title_lower):
+            return normalized
+
+    return "No especificado"
+
+
+def extract_modality_from_text(text: str) -> str:
+    """Extract work modality from text (title or description)."""
+    if not text:
+        return "No especificado"
+
+    text_lower = text.lower().strip()
+
+    # Check for remote keywords
+    remote_keywords = ["remoto", "remote", "100% remoto", "full remote", "teletrabajo", "home office"]
+    for keyword in remote_keywords:
+        if keyword in text_lower:
+            return "Remote"
+
+    # Check for hybrid keywords
+    hybrid_keywords = ["hibrido", "híbrido", "hybrid", "semi presencial"]
+    for keyword in hybrid_keywords:
+        if keyword in text_lower:
+            return "Hybrid"
+
+    # Check for onsite keywords
+    onsite_keywords = ["presencial", "onsite", "on-site", "oficina"]
+    for keyword in onsite_keywords:
+        if keyword in text_lower:
+            return "Onsite"
+
+    return "No especificado"

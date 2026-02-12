@@ -12,18 +12,19 @@ logger = get_logger(__name__)
 class GetOnBoardClient:
     BASE_URL = "https://www.getonbrd.com/api/v0/search/jobs"
 
-    def _calculate_salary(self, attrs: dict) -> str:
-        min_salary = attrs.get("min_salary")
-        max_salary = attrs.get("max_salary")
-
+    def _calculate_salary(
+        self,
+        min_salary: int | None,
+        max_salary: int | None,
+    ) -> int:
         if min_salary is not None and max_salary is not None:
-            return str(int((min_salary + max_salary) / 2))
+            return int((min_salary + max_salary) / 2)
         elif min_salary is not None:
-            return str(int(min_salary))
+            return int(min_salary)
         elif max_salary is not None:
-            return str(int(max_salary))
+            return int(max_salary)
         else:
-            return "No especificado"
+            return 0
 
     def search_jobs(self, criteria: SearchCriteria, per_page: int = 10) -> list[JobListing]:
         params = {"query": criteria.query, "per_page": 10, "country_code": "CL"}
@@ -60,7 +61,7 @@ class GetOnBoardClient:
                                 posted_date=None,
                                 seniority=normalize_seniority(seniority_id),
                                 modality=normalize_modality(attrs.get("remote_modality", "")),
-                                salary=self._calculate_salary(attrs),
+                                salary=self._calculate_salary(attrs.get("min_salary"), attrs.get("max_salary")),
                             )
                         )
                 return jobs
