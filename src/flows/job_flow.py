@@ -8,7 +8,6 @@ from src.services.filter_service import FilterService
 from src.services.notifier import TelegramNotifier
 from src.services.storage_service import (
     get_unnotified_jobs,
-    init_db,
     mark_jobs_as_notified,
     save_jobs,
 )
@@ -37,23 +36,22 @@ def notify_user(jobs: list[JobListing]):
 @flow(name="Job Scouting Flow")
 def job_flow():
     # 1. Initialize Database
-    init_db()
-
-    criteria = SearchCriteria(
-        query=settings.DEFAULT_QUERY,
+    criteria_jsearch = SearchCriteria(
+        query="Junior Data Engineer",
         location=settings.DEFAULT_LOCATION,
         date_posted="today",
     )
+    criteria_getonboard = SearchCriteria(
+        query="Data Engineer",
+        location=settings.DEFAULT_LOCATION,
+    )
 
     # 2. Fetch Jobs
-    # Run fetch tasks in parallel
-    jsearch_jobs = fetch_jsearch_jobs(
-        criteria
-    )  # Using .submit() for parallel if using Dask/Ray, but default runner is sequential/threads.
+    jsearch_jobs = fetch_jsearch_jobs(criteria_jsearch)
 
-    getonboard_jobs = fetch_getonboard_jobs(criteria)  #  GetOnBoard might be empty
+    getonboard_jobs = fetch_getonboard_jobs(criteria_getonboard)  #  GetOnBoard might be empty
 
-    all_jobs = jsearch_jobs + getonboard_jobs
+    all_jobs = getonboard_jobs + jsearch_jobs
 
     # 3. Filter Jobs (Business Logic)
     filtered_jobs = filter_results(all_jobs)
@@ -78,4 +76,8 @@ def job_flow():
 
 
 if __name__ == "__main__":
-    job_flow()
+    job_flow.serve(
+        name="daily-job-aggregator",
+        cron="0 23 * * *",
+        tags=["production"],
+    )
