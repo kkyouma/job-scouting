@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: str | None = None
 
     # Optional default criteria
-    DEFAULT_QUERY: str = "Python Developer"
-    DEFAULT_LOCATION: str = "Remote"
+    DEFAULT_QUERY: str = "Junior Data Engineer"
+    DEFAULT_LOCATION: str = "cl"
 
 
 settings = Settings()  # ty:ignore[missing-argument]
