@@ -54,6 +54,17 @@ def get_unnotified_jobs() -> list[JobListing]:
         return jobs
 
 
+def get_all_jobs() -> list[JobListing]:
+    """Retrieve all jobs from the database."""
+    logger.debug("Fetching all jobs from database...")
+    with Session(engine) as session:
+        statement = select(JobListing)
+        results = session.exec(statement)
+        jobs = list(results)
+        logger.info(f"Found {len(jobs)} jobs")
+        return jobs
+
+
 def mark_jobs_as_notified(job_ids: list[str]):
     """Mark specific jobs as notified."""
     logger.info(f"Marking {len(job_ids)} jobs as notified...")
