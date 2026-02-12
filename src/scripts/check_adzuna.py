@@ -6,31 +6,26 @@ from src.util.logger_config import get_logger
 logger = get_logger(__name__)
 
 
-def main():
+def check_adzuna(criteria: SearchCriteria):
     logger.info("Testing Adzuna API...")
     if not settings.ADZUNA_APP_ID or "your_" in settings.ADZUNA_APP_ID:
         logger.warning("ADZUNA_APP_ID seems to be default or empty.")
     if not settings.ADZUNA_API_KEY.get_secret_value() or "your_" in settings.ADZUNA_API_KEY.get_secret_value():
         logger.warning("ADZUNA_API_KEY seems to be default or empty.")
 
-    criteria = SearchCriteria(
-        query="Python Developer",
-        location="us",  # Adzuna needs precise location codes often, defaulting to 'us' in client for now logic
-    )
-
     try:
         client = AdzunaClient()
         jobs = client.search_jobs(criteria)
 
-        logger.info(f"\nFound {len(jobs)} jobs.")
-        for job in jobs[:3]:
-            logger.info(f"- {job.title} at {job.company_name} ({job.location})")
-            logger.info(f"  URL: {job.url}")
-            logger.info("-" * 20)
+        logger.info(f"Found {len(jobs)} jobs.")
+        for i, job in enumerate(jobs[:20]):
+            link = f"\033]8;;{job.url}\033\\Link\033]8;;\033\\"
+            logger.info(f"{i + 1}. {job.title} at {job.company_name} ({job.location}) - {link}")
 
+        return jobs
     except Exception as e:
-        logger.error(f"FAILED: {e}")
+        logger.exception(e)
 
 
 if __name__ == "__main__":
-    main()
+    ...

@@ -14,6 +14,7 @@ wheels/
 
 # Testing
 hello.py
+samples/
 
 # Prefect
 .prefect/
