@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     ADZUNA_API_KEY: SecretStr
     TELEGRAM_BOT_TOKEN: SecretStr | None = None
     TELEGRAM_CHAT_ID: str | None = None
+    TURSO_AUTH_TOKEN: SecretStr
+    TURSO_URL: str
 
     # Optional default criteria
     DEFAULT_QUERY: str = "Junior Data Engineer"
