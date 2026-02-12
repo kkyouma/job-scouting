@@ -3,20 +3,18 @@ from src.clients.getonboard import GetOnBoardClient
 from src.clients.jsearch import JSearchClient
 from src.config import settings
 from src.models import JobListing, SearchCriteria
+from src.services.filter_service import FilterService
 from src.services.notifier import TelegramNotifier
-from src.services.storage_service import get_unnotified_jobs, mark_jobs_as_notified, save_jobs
+from src.services.storage_service import get_all_jobs
 from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
 
-criteria = SearchCriteria(query="Data Engineer", date_posted="today", location="cl")
+criteria = SearchCriteria(query="Junior Data Engineer", date_posted="today", location="cl")
 
 
 def test_getonboard(criteria: SearchCriteria) -> list[JobListing]:
     logger.info("Testing GetOnBoard API")
-    # GetOnBoard might not need keys for public search, but good to verify
-
-    criteria = SearchCriteria(query="Data Engineer")
 
     try:
         client = GetOnBoardClient()
@@ -90,18 +88,27 @@ def test_notifier(jobs: list[JobListing]):
         logger.error(f"FAILED: {e}")
 
 
+def log_jobs(job: JobListing, i: int):
+    link = f"\033]8;;{job.url}\033\\Link\033]8;;\033\\"
+    logger.info(f"{i + 1}. {job.title} at {job.company_name} ({job.location}) - {link}")
+
+
 if __name__ == "__main__":
-    jobs = test_getonboard(criteria)
+    # jobs = test_getonboard(criteria)
     # jobs = test_jsearch(criteria)
-    logger.debug(jobs[0])
+    # logger.debug(jobs[0])
 
-    logger.info("Saving jobs to database...")
-    save_jobs(jobs)
-    logger.info("Saved jobs to database.")
+    # logger.info("Saving jobs to database...")
+    # save_jobs(jobs)
+    # logger.info("Saved jobs to database.")
 
-    unnotified_jobs = get_unnotified_jobs()
-    logger.info(unnotified_jobs)
-    test_notifier(unnotified_jobs)
+    # unnotified_jobs = get_unnotified_jobs()
+    all_jobs = get_all_jobs()
+    filtered_jobs = FilterService.filter_jobs(all_jobs)
+    for i, job in enumerate(filtered_jobs[:20]):
+        log_jobs(job, i)
 
-    ids = [job.id for job in unnotified_jobs]
-    mark_jobs_as_notified(ids)
+    test_notifier(filtered_jobs)
+
+    # ids = [job.id for job in filtered_jobs]
+    # mark_jobs_as_notified(ids)
