@@ -1,4 +1,4 @@
-from prefect import flow, task
+from prefect import flow, get_run_logger, task
 
 from src.clients.getonboard import GetOnBoardClient
 from src.clients.jsearch import JSearchClient
@@ -13,28 +13,41 @@ from src.services.storage_service import (
 )
 
 
-@task
+@task(name="Fetch JSearch Jobs", retries=3, retry_delay_seconds=5)
 def fetch_jsearch_jobs(criteria: SearchCriteria) -> list[JobListing]:
-    return JSearchClient().search_jobs(criteria, num_pages=2)
+    logger = get_run_logger()
+    jobs = JSearchClient().search_jobs(criteria, num_pages=2)
+    logger.info(f"JSearch: found {len(jobs)} jobs.")
+    return jobs
 
 
-@task
+@task(name="Fetch GetOnBoard Jobs", retries=3, retry_delay_seconds=5)
 def fetch_getonboard_jobs(criteria: SearchCriteria) -> list[JobListing]:
-    return GetOnBoardClient().search_jobs(criteria)
+    logger = get_run_logger()
+    jobs = GetOnBoardClient().search_jobs(criteria)
+    logger.info(f"GetOnBoard: found {len(jobs)} jobs.")
+    return jobs
 
 
-@task
+@task(name="Filter Jobs")
 def filter_results(jobs: list[JobListing]) -> list[JobListing]:
-    return FilterService.filter_jobs(jobs)
+    logger = get_run_logger()
+    logger.info(f"Initial jobs: {len(jobs)}")
+    filtered_jobs = FilterService.filter_jobs(jobs)
+    logger.info(f"Filtered jobs: {len(filtered_jobs)}")
+    return filtered_jobs
 
 
-@task
+@task(name="Notify User", retries=3, retry_delay_seconds=60)
 def notify_user(jobs: list[JobListing]):
-    TelegramNotifier().notify(jobs)
+    logger = get_run_logger()
+    logger.info(f"Sending {len(jobs)} notifications")
+    return TelegramNotifier().notify(jobs)
 
 
 @flow(name="Job Scouting Flow")
 def job_flow():
+    logger = get_run_logger()
     # 1. Initialize Database
     criteria_jsearch = SearchCriteria(
         query="Junior Data Engineer",
@@ -63,7 +76,7 @@ def job_flow():
     new_jobs_to_notify = get_unnotified_jobs()
 
     if not new_jobs_to_notify:
-        print("No new jobs to notify.")
+        logger.info("No new jobs to notify.")
         return
 
     # 6. Notify
