@@ -1,7 +1,7 @@
 from src.config import settings
-from src.models import JobListing
+from src.models import JobListing, JobStage
 from src.services.notifier import TelegramNotifier
-from src.services.storage_service import get_unnotified_jobs
+from src.services.storage_service import get_jobs_by_stage
 from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
@@ -23,4 +23,4 @@ def check_notify(jobs: list[JobListing]):
 
 
 if __name__ == "__main__":
-    check_notify(jobs=get_unnotified_jobs())
+    check_notify(jobs=get_jobs_by_stage(JobStage.SELECTED, notified=False))

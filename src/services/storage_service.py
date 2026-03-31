@@ -1,18 +1,17 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from src.config import settings
-from src.models import JobListing
+from src.models import JobListing, JobStage
 from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
 
 # Turso database configuration
-# Turso uses libsql protocol which is accessed via HTTP
 engine = create_engine(
     f"sqlite+{settings.TURSO_URL}?secure=true",
     echo=False,
     connect_args={
-        "auth_token": settings.TURSO_AUTH_TOKEN.get_secret_value(),  # Needed for Turso/libsql
+        "auth_token": settings.TURSO_AUTH_TOKEN.get_secret_value(),
     },
 )
 
@@ -34,60 +33,84 @@ def init_db():
         raise
 
 
-def save_jobs(jobs: list[JobListing]):
+def save_jobs(jobs: list[JobListing], stage: JobStage = JobStage.RAW):
     """
-    Save jobs to the database.
+    Save jobs to the database with a given stage.
     Ignores duplicates based on primary key (id).
     """
     if not jobs:
         logger.info("No jobs to save")
         return
 
-    logger.info(f"Saving {len(jobs)} jobs to database...")
-    new_jobs = 0
-    duplicate_jobs = 0
+    logger.info(f"Saving {len(jobs)} jobs (stage={stage})...")
+    new_count = 0
+    duplicate_count = 0
 
     with Session(engine) as session:
         for job in jobs:
-            # Check if exists
             existing = session.get(JobListing, job.id)
             if not existing:
+                job.stage = stage
                 session.add(job)
-                new_jobs += 1
-                logger.debug(f"Added new job: {job.title} at {job.company_name}")
+                new_count += 1
             else:
-                duplicate_jobs += 1
-                logger.debug(f"Skipping duplicate job: {job.title} at {job.company_name}")
+                duplicate_count += 1
 
         try:
             session.commit()
-            logger.info(f"✅ Saved {new_jobs} new jobs, skipped {duplicate_jobs} duplicates")
+            logger.info(f"✅ Saved {new_count} new jobs, skipped {duplicate_count} duplicates")
         except Exception as e:
             session.rollback()
             logger.error(f"Failed to save jobs: {e}")
             raise
 
 
-def get_unnotified_jobs() -> list[JobListing]:
-    """Retrieve jobs that haven't been notified yet."""
-    logger.debug("Fetching unnotified jobs from database...")
+def get_jobs_by_stage(stage: JobStage, notified: bool | None = None) -> list[JobListing]:
+    """
+    Query jobs by pipeline stage.
+    Optionally filter by notification status.
+    """
     with Session(engine) as session:
-        statement = select(JobListing).where(JobListing.is_notified == False)  # noqa: E712
+        statement = select(JobListing).where(JobListing.stage == stage)
+
+        if notified is not None:
+            statement = statement.where(JobListing.is_notified == notified)
+
         results = session.exec(statement)
         jobs = list(results)
-        logger.info(f"Found {len(jobs)} unnotified jobs")
+        suffix = f" (notified={notified})" if notified is not None else ""
+        logger.info(f"Found {len(jobs)} jobs at stage={stage}{suffix}")
         return jobs
 
 
-def get_all_jobs() -> list[JobListing]:
-    """Retrieve all jobs from the database."""
-    logger.debug("Fetching all jobs from database...")
+def promote_jobs(job_ids: list[str], new_stage: JobStage):
+    """
+    Move jobs to the next pipeline stage.
+    """
+    if not job_ids:
+        logger.info("No jobs to promote")
+        return
+
+    logger.info(f"Promoting {len(job_ids)} jobs → {new_stage}...")
+    promoted = 0
+
     with Session(engine) as session:
-        statement = select(JobListing)
-        results = session.exec(statement)
-        jobs = list(results)
-        logger.info(f"Found {len(jobs)} total jobs")
-        return jobs
+        for j_id in job_ids:
+            job = session.get(JobListing, j_id)
+            if job:
+                job.stage = new_stage
+                session.add(job)
+                promoted += 1
+            else:
+                logger.warning(f"Job not found for promotion: {j_id}")
+
+        try:
+            session.commit()
+            logger.info(f"✅ Promoted {promoted} jobs to {new_stage}")
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Failed to promote jobs: {e}")
+            raise
 
 
 def mark_jobs_as_notified(job_ids: list[str]):
@@ -98,7 +121,6 @@ def mark_jobs_as_notified(job_ids: list[str]):
 
     logger.info(f"Marking {len(job_ids)} jobs as notified...")
     notified_count = 0
-    missing_count = 0
 
     with Session(engine) as session:
         for j_id in job_ids:
@@ -107,14 +129,12 @@ def mark_jobs_as_notified(job_ids: list[str]):
                 job.is_notified = True
                 session.add(job)
                 notified_count += 1
-                logger.debug(f"Marked job as notified: {job.title} at {job.company_name}")
             else:
-                missing_count += 1
                 logger.warning(f"Job not found in database: {j_id}")
 
         try:
             session.commit()
-            logger.info(f"✅ Marked {notified_count} jobs as notified, {missing_count} not found")
+            logger.info(f"✅ Marked {notified_count} jobs as notified")
         except Exception as e:
             session.rollback()
             logger.error(f"Failed to mark jobs as notified: {e}")
@@ -122,17 +142,16 @@ def mark_jobs_as_notified(job_ids: list[str]):
 
 
 def get_job_stats() -> dict[str, int]:
-    """Get statistics about jobs in the database."""
+    """Get statistics about jobs in the database, grouped by stage."""
     with Session(engine) as session:
-        total = session.exec(select(JobListing)).all()
-        notified = session.exec(
-            select(JobListing).where(JobListing.is_notified == True)  # noqa: E712
-        ).all()
+        all_jobs = session.exec(select(JobListing)).all()
 
         stats = {
-            "total_jobs": len(total),
-            "notified_jobs": len(notified),
-            "unnotified_jobs": len(total) - len(notified),
+            "total": len(all_jobs),
+            "raw": sum(1 for j in all_jobs if j.stage == JobStage.RAW),
+            "filtered": sum(1 for j in all_jobs if j.stage == JobStage.FILTERED),
+            "selected": sum(1 for j in all_jobs if j.stage == JobStage.SELECTED),
+            "notified": sum(1 for j in all_jobs if j.is_notified),
         }
         logger.info(f"Database stats: {stats}")
         return stats

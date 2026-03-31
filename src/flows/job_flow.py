@@ -3,12 +3,13 @@ from prefect import flow, get_run_logger, task
 from src.clients.getonboard import GetOnBoardClient
 from src.clients.jsearch import JSearchClient
 from src.config import settings
-from src.models import JobListing, SearchCriteria
+from src.models import JobListing, JobStage, SearchCriteria
 from src.services.filter_service import FilterService
 from src.services.notifier import TelegramNotifier
 from src.services.storage_service import (
-    get_unnotified_jobs,
+    get_jobs_by_stage,
     mark_jobs_as_notified,
+    promote_jobs,
     save_jobs,
 )
 
@@ -60,7 +61,7 @@ def evaluate_jobs_with_ai(jobs: list[JobListing]) -> list[JobListing]:
 @flow(name="Job Scouting Flow")
 def job_flow():
     logger = get_run_logger()
-    # 1. Initialize Database
+
     criteria_jsearch = SearchCriteria(
         query="Junior Data Engineer",
         location=settings.DEFAULT_LOCATION,
@@ -71,39 +72,41 @@ def job_flow():
         location=settings.DEFAULT_LOCATION,
     )
 
-    # 2. Fetch Jobs
+    # 1. Fetch → Save as RAW
     jsearch_jobs = fetch_jsearch_jobs(criteria_jsearch)
-
-    getonboard_jobs = fetch_getonboard_jobs(criteria_getonboard)  #  GetOnBoard might be empty
-
+    getonboard_jobs = fetch_getonboard_jobs(criteria_getonboard)
     all_jobs = getonboard_jobs + jsearch_jobs
+    save_jobs(all_jobs, stage=JobStage.RAW)
 
-    # 3. Filter Jobs (Business Logic)
+    # 2. Filter → Promote to FILTERED
     filtered_jobs = filter_results(all_jobs)
-
-    # 4. Save to DB (Deduplication happens here)
-    save_jobs(filtered_jobs)
-
-    # 5. Get only NEW (unnotified) jobs for notification
-    new_jobs_to_notify = get_unnotified_jobs()
-
-    if not new_jobs_to_notify:
-        logger.info("No new jobs to notify.")
+    if not filtered_jobs:
+        logger.info("No jobs passed the keyword filter.")
         return
 
-    # 6. AI Evaluation
-    best_matches = evaluate_jobs_with_ai(new_jobs_to_notify)
+    filtered_ids = [job.id for job in filtered_jobs]
+    promote_jobs(filtered_ids, new_stage=JobStage.FILTERED)
 
-    # 7. Notify User with only best matches
-    if best_matches:
-        notify_user(best_matches)
-    else:
+    # 3. AI Evaluation → Promote to SELECTED
+    best_matches = evaluate_jobs_with_ai(filtered_jobs)
+    if not best_matches:
         logger.info("No best matches found by AI.")
+        return
 
-    # 8. Mark as Notified (All new jobs, so we don't evaluate them again)
-    # Extract IDs to mark as notified
-    job_ids = [job.id for job in new_jobs_to_notify]
-    mark_jobs_as_notified(job_ids)
+    selected_ids = [job.id for job in best_matches]
+    promote_jobs(selected_ids, new_stage=JobStage.SELECTED)
+
+    # 4. Notify only NEW selected jobs (not yet notified)
+    jobs_to_notify = get_jobs_by_stage(JobStage.SELECTED, notified=False)
+    if not jobs_to_notify:
+        logger.info("No new selected jobs to notify.")
+        return
+
+    notify_user(jobs_to_notify)
+
+    # 5. Mark as notified
+    notified_ids = [job.id for job in jobs_to_notify]
+    mark_jobs_as_notified(notified_ids)
 
 
 if __name__ == "__main__":

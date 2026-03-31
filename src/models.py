@@ -1,7 +1,14 @@
 from datetime import UTC, datetime
+from enum import StrEnum
 
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
+
+
+class JobStage(StrEnum):
+    RAW = "raw"
+    FILTERED = "filtered"
+    SELECTED = "selected"
 
 
 class JobListing(SQLModel, table=True):
@@ -15,8 +22,11 @@ class JobListing(SQLModel, table=True):
     url: str
     salary: int | None = None
     posted_date: datetime | None = None
-    source: str  # e.g., "JSearch", "Adzuna", "GetOnBoard"
+    source: str
     tags: list[str] = Field(default_factory=list, sa_column=Column(JSON))
+
+    # Pipeline stage
+    stage: str = Field(default=JobStage.RAW)
 
     # Tracking fields
     is_notified: bool = Field(default=False)
