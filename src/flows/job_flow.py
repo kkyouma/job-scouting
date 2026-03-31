@@ -45,6 +45,18 @@ def notify_user(jobs: list[JobListing]):
     return TelegramNotifier().notify(jobs)
 
 
+@task(name="Evaluate Jobs with AI", retries=2, retry_delay_seconds=10)
+def evaluate_jobs_with_ai(jobs: list[JobListing]) -> list[JobListing]:
+    logger = get_run_logger()
+    logger.info(f"Passed {len(jobs)} jobs to AI evaluation.")
+    from src.services.ai_service import AIService
+
+    ai_service = AIService()
+    best_matches = ai_service.evaluate_jobs(jobs)
+    logger.info(f"AI Selected {len(best_matches)} best matches.")
+    return best_matches
+
+
 @flow(name="Job Scouting Flow")
 def job_flow():
     logger = get_run_logger()
@@ -79,10 +91,16 @@ def job_flow():
         logger.info("No new jobs to notify.")
         return
 
-    # 6. Notify
-    notify_user(new_jobs_to_notify)
+    # 6. AI Evaluation
+    best_matches = evaluate_jobs_with_ai(new_jobs_to_notify)
 
-    # 7. Mark as Notified
+    # 7. Notify User with only best matches
+    if best_matches:
+        notify_user(best_matches)
+    else:
+        logger.info("No best matches found by AI.")
+
+    # 8. Mark as Notified (All new jobs, so we don't evaluate them again)
     # Extract IDs to mark as notified
     job_ids = [job.id for job in new_jobs_to_notify]
     mark_jobs_as_notified(job_ids)
@@ -91,6 +109,6 @@ def job_flow():
 if __name__ == "__main__":
     job_flow.serve(
         name="daily-job-aggregator",
-        cron="0 23 * * *",
+        cron="0 20 * * *",
         tags=["production"],
     )
