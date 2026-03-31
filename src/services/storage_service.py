@@ -46,7 +46,7 @@ def save_jobs(jobs: list[JobListing], stage: JobStage = JobStage.RAW):
     new_count = 0
     duplicate_count = 0
 
-    with Session(engine) as session:
+    with Session(engine, expire_on_commit=False) as session:
         for job in jobs:
             existing = session.get(JobListing, job.id)
             if not existing:
@@ -70,7 +70,7 @@ def get_jobs_by_stage(stage: JobStage, notified: bool | None = None) -> list[Job
     Query jobs by pipeline stage.
     Optionally filter by notification status.
     """
-    with Session(engine) as session:
+    with Session(engine, expire_on_commit=False) as session:
         statement = select(JobListing).where(JobListing.stage == stage)
 
         if notified is not None:

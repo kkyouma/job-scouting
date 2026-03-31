@@ -62,19 +62,32 @@ def evaluate_jobs_with_ai(jobs: list[JobListing]) -> list[JobListing]:
 def job_flow():
     logger = get_run_logger()
 
+    # GetOnBoard
+    getonboard_queries = [
+        "Analytics Engineer",
+        "Data Engineer",
+        "Data Analyst",
+        "ML Engineer",
+    ]
+
+    getonboard_futures = [
+        fetch_getonboard_jobs.submit(SearchCriteria(query=q, location=settings.DEFAULT_LOCATION))
+        for q in getonboard_queries
+    ]
+
+    # JSearch
     criteria_jsearch = SearchCriteria(
-        query="Junior Data Engineer",
+        query="Analytics Engineer OR Data Engineer",
         location=settings.DEFAULT_LOCATION,
         date_posted="today",
     )
-    criteria_getonboard = SearchCriteria(
-        query="Data Engineer",
-        location=settings.DEFAULT_LOCATION,
-    )
 
     # 1. Fetch → Save as RAW
-    jsearch_jobs = fetch_jsearch_jobs(criteria_jsearch)
-    getonboard_jobs = fetch_getonboard_jobs(criteria_getonboard)
+    jsearch_future = fetch_jsearch_jobs.submit(criteria_jsearch)
+    jsearch_jobs = jsearch_future.result()
+
+    getonboard_jobs = [job for f in getonboard_futures for job in f.result()]
+
     all_jobs = getonboard_jobs + jsearch_jobs
     save_jobs(all_jobs, stage=JobStage.RAW)
 
@@ -110,8 +123,4 @@ def job_flow():
 
 
 if __name__ == "__main__":
-    job_flow.serve(
-        name="daily-job-aggregator",
-        cron="0 20 * * *",
-        tags=["production"],
-    )
+    job_flow()
