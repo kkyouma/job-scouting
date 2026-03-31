@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -12,6 +14,8 @@ class Settings(BaseSettings):
     TURSO_URL: str
     GEMINI_API_KEY: SecretStr | None = None
     GEMINI_MODEL_ID: str = "gemini-2.5-flash"
+
+    PROMPT_PATH: Path = Path("./prompts/system_prompt.md")
 
     # Optional default criteria
     DEFAULT_QUERY: str = "Junior Data Engineer"

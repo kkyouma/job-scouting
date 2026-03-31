@@ -10,24 +10,6 @@ from src.util.logger_config import get_logger
 
 logger = get_logger(__name__)
 
-SYSTEM_PROMPT = """
-You are a technical recruiter assistant filtering job listings for a candidate
-seeking a Junior/Mid-level role in Data Engineering, Data Science, or Data Analysis.
-
-A job is RELEVANT if it clearly mentions:
-- Python or SQL
-- Data pipelines, ETL/ELT, or workflow orchestration (e.g. Airflow, dbt)
-- Cloud platforms (AWS, GCP, Azure)
-- Machine learning, analytics, or backend data systems
-
-A job is NOT RELEVANT if it is:
-- Purely managerial with no hands-on technical work
-- Focused on unrelated stacks (e.g. mobile, embedded, frontend only)
-- Vague with no technical detail whatsoever
-
-Return ONLY the IDs of the relevant jobs.
-""".strip()
-
 
 class MatchingJobs(BaseModel):
     best_match_ids: list[str]
@@ -42,6 +24,7 @@ class AIService:
         self.api_key = settings.GEMINI_API_KEY.get_secret_value() if settings.GEMINI_API_KEY else None
         self.client = genai.Client(api_key=self.api_key) if self.api_key else None
         self.model_id = settings.GEMINI_MODEL_ID
+        self.system_prompt = settings.PROMPT_PATH.read_text(encoding="utf-8")
 
     def _serialize_job(self, job: JobListing, max_description_lenght: int = 2000) -> dict:
         return {
@@ -77,7 +60,7 @@ class AIService:
             model=self.model_id,
             contents=prompt,
             config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
+                system_instruction=self.system_prompt,
                 response_mime_type="application/json",
                 response_schema=MatchingJobs,
             ),
