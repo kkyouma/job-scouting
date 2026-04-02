@@ -58,7 +58,7 @@ def save_jobs(jobs: list[JobListing], stage: JobStage = JobStage.RAW):
 
         try:
             session.commit()
-            logger.info(f"✅ Saved {new_count} new jobs, skipped {duplicate_count} duplicates")
+            logger.info(f"Saved {new_count} new jobs, skipped {duplicate_count} duplicates")
         except Exception as e:
             session.rollback()
             logger.error(f"Failed to save jobs: {e}")
@@ -106,7 +106,7 @@ def promote_jobs(job_ids: list[str], new_stage: JobStage):
 
         try:
             session.commit()
-            logger.info(f"✅ Promoted {promoted} jobs to {new_stage}")
+            logger.info(f"Promoted {promoted} jobs to {new_stage}")
         except Exception as e:
             session.rollback()
             logger.error(f"Failed to promote jobs: {e}")
@@ -134,7 +134,7 @@ def mark_jobs_as_notified(job_ids: list[str]):
 
         try:
             session.commit()
-            logger.info(f"✅ Marked {notified_count} jobs as notified")
+            logger.info(f"Marked {notified_count} jobs as notified")
         except Exception as e:
             session.rollback()
             logger.error(f"Failed to mark jobs as notified: {e}")
