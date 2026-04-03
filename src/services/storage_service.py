@@ -7,8 +7,9 @@ from src.util.logger_config import get_logger
 logger = get_logger(__name__)
 
 # Turso database configuration
+_turso_host = settings.TURSO_URL.replace("libsql://", "", 1)
 engine = create_engine(
-    f"sqlite+{settings.TURSO_URL}?secure=true",
+    f"sqlite+libsql://{_turso_host}?secure=true",
     echo=False,
     connect_args={
         "auth_token": settings.TURSO_AUTH_TOKEN.get_secret_value(),
