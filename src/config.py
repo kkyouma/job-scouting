@@ -1,6 +1,7 @@
 from pathlib import Path
+from typing import Any
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,14 @@ class Settings(BaseSettings):
     # Optional default criteria
     DEFAULT_QUERY: str = "Junior Data Engineer"
     DEFAULT_LOCATION: str = "cl"
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def strip_quotes(cls, v: Any) -> Any:
+        """Strip quotes from strings if they were included by mistake in .env."""
+        if isinstance(v, str):
+            return v.strip("\"'")
+        return v
 
 
 settings = Settings()  # ty:ignore[missing-argument]
