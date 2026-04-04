@@ -58,7 +58,7 @@ def evaluate_jobs_with_ai(jobs: list[JobListing]) -> list[JobListing]:
     return best_matches
 
 
-@flow(name="Job Scouting Flow")
+@flow(name="Job Scouting Flow", timeout_seconds=300)
 def job_flow():
     logger = get_run_logger()
 
