@@ -30,42 +30,38 @@ class JSearchClient:
             "date_posted": criteria.date_posted,
         }
 
-        try:
-            response = requests.get(self.BASE_URL, headers=headers, params=querystring)
-            response.raise_for_status()
-            data = response.json()
+        response = requests.get(self.BASE_URL, headers=headers, params=querystring, timeout=15)
+        response.raise_for_status()
+        data = response.json()
 
-            jobs = []
-            if "data" in data:
-                for item in data["data"]:
-                    # Filter by date if enabled
-                    title = item.get("job_title", "")
-                    description = item.get("job_description", "")
+        jobs = []
+        if "data" in data:
+            for item in data["data"]:
+                # Filter by date if enabled
+                title = item.get("job_title", "")
+                description = item.get("job_description", "")
 
-                    # Extract seniority from title
-                    seniority = extract_seniority_from_title(title)
+                # Extract seniority from title
+                seniority = extract_seniority_from_title(title)
 
-                    # Extract modality from title, description, and job_is_remote flag
-                    if item.get("job_is_remote"):
-                        modality = "Remote"
-                    else:
-                        modality = extract_modality_from_text(f"{title} {description}")
+                # Extract modality from title, description, and job_is_remote flag
+                if item.get("job_is_remote"):
+                    modality = "Remote"
+                else:
+                    modality = extract_modality_from_text(f"{title} {description}")
 
-                    jobs.append(
-                        JobListing(
-                            id=item.get("job_id", ""),
-                            title=title,
-                            company_name=item.get("employer_name", ""),
-                            location=normalize_location(item.get("job_country", "")),
-                            description=description,
-                            url=item.get("job_apply_link", ""),
-                            source=item.get("job_publisher", "JSearch"),
-                            posted_date=item.get("job_posted_at_datetime_utc", ""),
-                            seniority=seniority,
-                            modality=modality,
-                        )
+                jobs.append(
+                    JobListing(
+                        id=item.get("job_id", ""),
+                        title=title,
+                        company_name=item.get("employer_name", ""),
+                        location=normalize_location(item.get("job_country", "")),
+                        description=description,
+                        url=item.get("job_apply_link", ""),
+                        source=item.get("job_publisher", "JSearch"),
+                        posted_date=item.get("job_posted_at_datetime_utc", ""),
+                        seniority=seniority,
+                        modality=modality,
                     )
-            return jobs
-        except Exception as e:
-            logger.error(f"Error fetching from JSearch: {e}")
-            return []
+                )
+        return jobs

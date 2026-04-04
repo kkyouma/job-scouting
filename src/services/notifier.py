@@ -36,7 +36,7 @@ class TelegramNotifier:
                 f"📍 {job.location or 'Unknown'}\n"
                 f"🔗 [Apply Here]({job.url})\n"
                 f"🏷️ {', '.join(job.tags)}\n"
-                f"{html_to_markdown_basic(job.description)}"
+                f"{html_to_markdown_basic(job.description or '')}"
             )
             self._send_message(msg)
 
@@ -50,8 +50,5 @@ class TelegramNotifier:
             "text": text,
             "parse_mode": "Markdown",
         }
-        try:
-            response = requests.post(self.base_url, json=payload)
-            response.raise_for_status()
-        except Exception as e:
-            logger.error(f"Error sending Telegram notification: {e}")
+        response = requests.post(self.base_url, json=payload, timeout=10)
+        response.raise_for_status()

@@ -29,45 +29,38 @@ class GetOnBoardClient:
     def search_jobs(self, criteria: SearchCriteria, per_page: int = 10) -> list[JobListing]:
         params = {"query": criteria.query, "per_page": 10, "country_code": "CL"}
 
-        try:
-            response = requests.request("GET", url=self.BASE_URL, params=params)
+        response = requests.request("GET", url=self.BASE_URL, params=params, timeout=15)
+        response.raise_for_status()
 
-            if response.status_code == 200:
-                data = response.json()
-                jobs = []
-                if "data" in data:
-                    for item in data["data"]:
-                        logger.debug(json.dumps(item, indent=4))
+        data = response.json()
+        jobs = []
+        if "data" in data:
+            for item in data["data"]:
+                logger.debug(json.dumps(item, indent=4))
 
-                        attrs = item.get("attributes", {})
+                attrs = item.get("attributes", {})
 
-                        # attributes
-                        seniority_id = attrs.get("seniority", {}).get("data", {}).get("id")
-                        description = f"{attrs.get('description', 'No especificado')}\n"
-                        f"{attrs.get('functions', 'No especificado')}\n"
-                        (f"{attrs.get('desirable', 'No especificado')}",)
-                        jobs.append(
-                            JobListing(
-                                id=item.get("id", ""),
-                                title=attrs.get("title", ""),
-                                company_name=attrs.get("company", {})
-                                .get("data", "")
-                                .get("attributes", {})
-                                .get("name", ""),
-                                location=normalize_location(attrs.get("countries", "")),
-                                description=html_to_markdown_basic(description),
-                                url=item.get("links", {}).get("public_url", ""),
-                                source="GetOnBoard",
-                                posted_date=None,
-                                seniority=normalize_seniority(seniority_id),
-                                modality=normalize_modality(attrs.get("remote_modality", "")),
-                                salary=self._calculate_salary(attrs.get("min_salary"), attrs.get("max_salary")),
-                            )
-                        )
-                return jobs
-            else:
-                logger.warning(f"GetOnBoard API status: {response.status_code} | {response.text}")
-                return []
-        except Exception as e:
-            logger.exception(f"Error fetching from GetOnBoard: {e}")
-            return []
+                # attributes
+                seniority_id = attrs.get("seniority", {}).get("data", {}).get("id")
+                description = f"{attrs.get('description', 'No especificado')}\n"
+                f"{attrs.get('functions', 'No especificado')}\n"
+                (f"{attrs.get('desirable', 'No especificado')}",)
+                jobs.append(
+                    JobListing(
+                        id=item.get("id", ""),
+                        title=attrs.get("title", ""),
+                        company_name=attrs.get("company", {})
+                        .get("data", "")
+                        .get("attributes", {})
+                        .get("name", ""),
+                        location=normalize_location(attrs.get("countries", "")),
+                        description=html_to_markdown_basic(description),
+                        url=item.get("links", {}).get("public_url", ""),
+                        source="GetOnBoard",
+                        posted_date=None,
+                        seniority=normalize_seniority(seniority_id),
+                        modality=normalize_modality(attrs.get("remote_modality", "")),
+                        salary=self._calculate_salary(attrs.get("min_salary"), attrs.get("max_salary")),
+                    )
+                )
+        return jobs
