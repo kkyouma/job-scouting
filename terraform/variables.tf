@@ -18,3 +18,8 @@ variable "sa_runtime_name" {
   description = "Runtime Service Account name"
   type        = string
 }
+
+variable "cloud_run_job_name" {
+  description = "Cloud Run Job name"
+  type        = string
+}
