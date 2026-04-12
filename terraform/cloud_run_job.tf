@@ -9,7 +9,8 @@ resource "google_cloud_run_v2_job" "job_scouting" {
       service_account = google_service_account.sa_runtime.email
 
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.artifacts_repository.repository_id}/${var.cloud_run_job_name}:latest"
+        # image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.artifacts_repository.repository_id}/${var.cloud_run_job_name}:latest"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
 
         # Inject every secret as an environment variable
         dynamic "env" {
