@@ -26,10 +26,3 @@ resource "google_artifact_registry_repository" "artifacts_repository" {
   description   = "Artifacts repository for job-scouting"
 }
 
-resource "google_secret_manager_secret" "job_scouting_secret" {
-  project   = var.project_id
-  secret_id = "job-scouting-secret"
-  replication {
-    auto {}
-  }
-}
