@@ -11,7 +11,6 @@ locals {
     local.wif_prefix,
     "workloadIdentityPools/${var.wif_pool_id}",
     "attribute.repository/${var.github_repo}",
-    "attribute.ref/refs/heads/main"
   ])
 }
 
