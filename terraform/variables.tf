@@ -52,8 +52,8 @@ variable "wif_pool_id" {
   type        = string
 }
 
-variable "wif_provider_id" {
-  description = "Workload Identity Provider ID"
+variable "github_repo" {
+  description = "GitHub repository name"
   type        = string
-  default     = "github-provider"
+  default     = "kkyouma/job-scouting"
 }

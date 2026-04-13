@@ -5,13 +5,13 @@ data "google_project" "current" {
 
 locals {
   project_number = data.google_project.current.number
-  wif_prefix     = "principal://iam.googleapis.com/${local.project_number}/locations/global"
+  wif_prefix     = "principalSet://iam.googleapis.com/projects/${local.project_number}/locations/global"
 
   wif_member = join("/", [
     local.wif_prefix,
     "workloadIdentityPools/${var.wif_pool_id}",
-    "providers/${var.wif_provider_id}",
-    "subject/repo:kkyouma/job-scouting:ref:refs/heads/main"
+    "attribute.repository/${var.github_repo}",
+    "attribute.ref/refs/heads/main"
   ])
 }
 
