@@ -1,3 +1,29 @@
+# ======= DATA SOURCES =======
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+locals {
+  project_number = data.google_project.current.number
+  wif_prefix     = "principal://iam.googleapis.com/${local.project_number}/locations/global"
+
+  wif_member = join("/", [
+    local.wif_prefix,
+    "workloadIdentityPools/${var.wif_pool_id}",
+    "providers/${var.wif_provider_id}",
+    "subject/repo:kkyouma/job-scouting:ref:refs/heads/main"
+  ])
+}
+
+# ======= WORKLOAD IDENTITY =======
+
+resource "google_service_account_iam_member" "wif_binding" {
+  service_account_id = google_service_account.sa_cicd.name
+  role               = "roles/iam.workloadIdentityUser"
+
+  member = local.wif_member
+
+}
 # ======= RUNTIME =======
 
 # (sa_runtime) can READ the Artifact Registry

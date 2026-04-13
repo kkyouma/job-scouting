@@ -46,3 +46,14 @@ variable "cloud_run_timeout" {
   type        = string
   default     = "900s"
 }
+
+variable "wif_pool_id" {
+  description = "Workload Identity Pool ID"
+  type        = string
+}
+
+variable "wif_provider_id" {
+  description = "Workload Identity Provider ID"
+  type        = string
+  default     = "github-provider"
+}
