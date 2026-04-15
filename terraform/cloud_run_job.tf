@@ -42,7 +42,9 @@ resource "google_cloud_run_v2_job" "job_scouting" {
   lifecycle {
     ignore_changes = [
       # Allow CI/CD to update the image tag without Terraform drift
-      template[0].template[0].containers[0].image,
+      client,
+      client_version,
+      template[0].labels,
     ]
   }
 
