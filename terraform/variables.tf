@@ -19,6 +19,11 @@ variable "sa_runtime_name" {
   type        = string
 }
 
+variable "sa_scheduler_name" {
+  description = "Scheduler Service Account name"
+  type        = string
+}
+
 variable "cloud_run_job_name" {
   description = "Cloud Run Job name"
   type        = string

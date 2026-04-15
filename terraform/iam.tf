@@ -75,3 +75,15 @@ resource "google_service_account_iam_member" "cicd_act_as_runtime" {
   role   = "roles/iam.serviceAccountUser"
   member = "serviceAccount:${google_service_account.sa_cicd.email}"
 }
+
+# ======= SCHEDULER =======
+
+# (sa_scheduler) can ACT AS the runtime SA (required to deploy with that SA)
+resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
+  project  = var.project_id
+  location = var.region
+  name     = google_cloud_run_v2_job.job_scouting.name
+
+  role   = "roles/run.invoker"
+  member = "serviceAccount:${google_service_account.sa_scheduler.email}"
+}
