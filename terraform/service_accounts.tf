@@ -10,8 +10,9 @@ resource "google_service_account" "sa_runtime" {
   display_name = "Runtime service account"
 }
 
-resource "google_service_account" "sa_scheduler" {
-  project      = var.project_id
-  account_id   = var.sa_scheduler_name
-  display_name = "scheduler service account"
-}
+# resource "google_service_account" "sa_scheduler" {
+#   project      = var.project_id
+#   account_id   = var.sa_scheduler_name
+#   display_name = "scheduler service account"
+# }
+

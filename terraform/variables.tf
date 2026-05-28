@@ -19,20 +19,20 @@ variable "sa_runtime_name" {
   type        = string
 }
 
-variable "sa_scheduler_name" {
-  description = "Scheduler Service Account name"
-  type        = string
-}
+# variable "sa_scheduler_name" {
+#   description = "Scheduler Service Account name"
+#   type        = string
+# }
 
 variable "cloud_run_job_name" {
   description = "Cloud Run Job name"
   type        = string
 }
 
-variable "secret_ids" {
-  description = "List of secret names to create in Secret Manager (must match .env keys)"
-  type        = list(string)
-}
+# variable "secret_ids" {
+#   description = "List of secret names to create in Secret Manager (must match .env keys)"
+#   type        = list(string)
+# }
 
 variable "cloud_run_cpu" {
   description = "CPU limit for the Cloud Run Job container"

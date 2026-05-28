@@ -35,16 +35,16 @@ resource "google_artifact_registry_repository_iam_member" "runtime_run_reader" {
   member = "serviceAccount:${google_service_account.sa_runtime.email}"
 }
 
-# (sa_runtime) can ACCESS every secret
-resource "google_secret_manager_secret_iam_member" "runtime_secret_accessor" {
-  for_each = google_secret_manager_secret.env_secrets
-
-  project   = var.project_id
-  secret_id = each.value.secret_id
-
-  role   = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:${google_service_account.sa_runtime.email}"
-}
+# # (sa_runtime) can ACCESS every secret
+# resource "google_secret_manager_secret_iam_member" "runtime_secret_accessor" {
+#   for_each = google_secret_manager_secret.env_secrets
+# 
+#   project   = var.project_id
+#   secret_id = each.value.secret_id
+# 
+#   role   = "roles/secretmanager.secretAccessor"
+#   member = "serviceAccount:${google_service_account.sa_runtime.email}"
+# }
 
 # ======= CI/CD =======
 
@@ -78,12 +78,12 @@ resource "google_service_account_iam_member" "cicd_act_as_runtime" {
 
 # ======= SCHEDULER =======
 
-# (sa_scheduler) can ACT AS the runtime SA (required to deploy with that SA)
-resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
-  project  = var.project_id
-  location = var.region
-  name     = google_cloud_run_v2_job.job_scouting.name
-
-  role   = "roles/run.invoker"
-  member = "serviceAccount:${google_service_account.sa_scheduler.email}"
-}
+# # (sa_scheduler) can ACT AS the runtime SA (required to deploy with that SA)
+# resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
+#   project  = var.project_id
+#   location = var.region
+#   name     = google_cloud_run_v2_job.job_scouting.name
+# 
+#   role   = "roles/run.invoker"
+#   member = "serviceAccount:${google_service_account.sa_scheduler.email}"
+# }

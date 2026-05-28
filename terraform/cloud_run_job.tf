@@ -13,18 +13,18 @@ resource "google_cloud_run_v2_job" "job_scouting" {
         image = "us-docker.pkg.dev/cloudrun/container/hello"
 
         # Inject every secret as an environment variable
-        dynamic "env" {
-          for_each = google_secret_manager_secret.env_secrets
-          content {
-            name = env.key # e.g. JSEARCH_API_KEY
-            value_source {
-              secret_key_ref {
-                secret  = env.value.secret_id
-                version = "latest"
-              }
-            }
-          }
-        }
+        # dynamic "env" {
+        #   for_each = google_secret_manager_secret.env_secrets
+        #   content {
+        #     name = env.key # e.g. JSEARCH_API_KEY
+        #     value_source {
+        #       secret_key_ref {
+        #         secret  = env.value.secret_id
+        #         version = "latest"
+        #       }
+        #     }
+        #   }
+        # }
 
         resources {
           limits = {
@@ -48,24 +48,24 @@ resource "google_cloud_run_v2_job" "job_scouting" {
     ]
   }
 
-  depends_on = [
-    google_secret_manager_secret.env_secrets,
-  ]
+  # depends_on = [
+  #   google_secret_manager_secret.env_secrets,
+  # ]
 }
 
-# Schedule Cloud Run Job to run every Monday to Friday at 8pm
-resource "google_cloud_scheduler_job" "run_job_trigger" {
-  project   = var.project_id
-  name      = var.cloud_run_job_name
-  schedule  = "0 20 * * 1-5"
-  time_zone = "America/Santiago"
-
-  http_target {
-    http_method = "POST"
-    uri         = "https://${var.region}-run.googleapis.com/v1/namespaces/${var.project_id}/jobs/${google_cloud_run_v2_job.job_scouting.name}:run"
-
-    oidc_token {
-      service_account_email = google_service_account.sa_scheduler.email
-    }
-  }
-}
+# # Schedule Cloud Run Job to run every Monday to Friday at 8pm
+# resource "google_cloud_scheduler_job" "run_job_trigger" {
+#   project   = var.project_id
+#   name      = var.cloud_run_job_name
+#   schedule  = "0 20 * * 1-5"
+#   time_zone = "America/Santiago"
+# 
+#   http_target {
+#     http_method = "POST"
+#     uri         = "https://${var.region}-run.googleapis.com/v2/projects/${var.project_id}/locations/${var.region}/jobs/${google_cloud_run_v2_job.job_scouting.name}:run"
+# 
+#     oidc_token {
+#       service_account_email = google_service_account.sa_scheduler.email
+#     }
+#   }
+# }

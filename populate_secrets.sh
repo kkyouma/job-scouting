@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
+# NOTE: This project has been decommissioned. This script is kept for documentation purposes only.
 # populate_secrets.sh
-# Reads the .env file and pushes each KEY=VALUE pair as a new
-# Secret Manager version.  Assumes secrets already exist (created by Terraform).
-#
-# Usage: bash populate_secrets.sh [path/to/.env]
-
 set -euo pipefail
 
 ENV_FILE="${1:-.env}"
@@ -14,14 +10,24 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-while IFS='=' read -r key value; do
+while IFS= read -r line || [[ -n "$line" ]]; do
   # Skip comments and empty lines
-  [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+  [[ "$line" =~ ^[[:space:]]*# || -z "${line// }" ]] && continue
 
-  # Strip surrounding double-quotes from value
-  value="${value%\"}"
-  value="${value#\"}"
+  # Split on FIRST '=' only
+  key="${line%%=*}"
+  value="${line#*=}"
+
+  # Skip if key is empty
+  [[ -z "$key" ]] && continue
+
+  # Strip surrounding quotes (single or double)
+  value="${value%\"}" ; value="${value#\"}"
+  value="${value%\'}" ; value="${value#\'}"
+
+  # Strip carriage return (Windows line endings)
+  value="${value%$'\r'}"
 
   echo "→ Updating secret: $key"
-  echo -n "$value" | gcloud secrets versions add "$key" --data-file=-
+  printf '%s' "$value" | gcloud secrets versions add "$key" --data-file=-
 done < "$ENV_FILE"
